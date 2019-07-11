@@ -1,25 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using MakeConfig.Utils;
 using OfficeOpenXml;
 
 namespace MakeConfig.Excel
 {
-
-    public struct ColumnMeta
-    {
-        public string Description;
-        public string DefaultValue;
-        public string Name;
-        public string Constraint;
-        public string Type;
-        public string Tag;
-
-        public override string ToString()
-        {
-            return $"{Description}\t{DefaultValue}\t{Name}\t{Constraint}\t{Type}\t{Tag}";
-        }
-    }
-
     public class VirtualDataTable
     {
 
@@ -28,6 +13,8 @@ namespace MakeConfig.Excel
         private readonly ExcelWorksheet sheet;
 
         public int ColumnCount => sheet.Dimension.Columns;
+
+        public FileInfo File { get; }
 
         public ColumnMeta GetColumnMeta(int column)
         {
@@ -42,6 +29,17 @@ namespace MakeConfig.Excel
             };
         }
 
+        public bool TryGetColumnMeta(int column, out ColumnMeta meta)
+        {
+            if (column >= ColumnCount)
+            {
+                meta = default(ColumnMeta);
+                return false;
+            }
+            meta = GetColumnMeta(column);
+            return true;
+        }
+
         public IEnumerable<ColumnMeta> ColumnMetas
         {
             get
@@ -54,14 +52,15 @@ namespace MakeConfig.Excel
             }
         }
 
-        public VirtualDataTable(string file, ExcelWorksheet sheet)
+        public VirtualDataTable(FileInfo file, ExcelWorksheet sheet)
         {
             this.sheet = sheet;
+            File = file;
 
-            var configName = file.RemoveLast(Constant.Suffix);
-            if (file.Contains("_"))
+            var configName = file.Name.RemoveLast(Constant.Suffix);
+            if (file.Name.Contains("_"))
             {
-                configName = file.Split(new []{'_'}, 2)[0];
+                configName = file.Name.Split(new []{'_'}, 2)[0];
             }
             if (sheet.Name != configName)
             {

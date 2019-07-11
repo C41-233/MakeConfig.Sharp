@@ -19,7 +19,7 @@ namespace MakeConfig.Processor
                 var package = LoadExcelPackage(file.ToString());
                 foreach (var sheet in package.Workbook.Worksheets)
                 {
-                    var table = new VirtualDataTable(file.Name, sheet);
+                    var table = new VirtualDataTable(file, sheet);
                     configNameToTables.GetValueOrCreate(table.ConfigName).Add(table);
                 }
             }

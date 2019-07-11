@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MakeConfig.Output;
 
 namespace MakeConfig.Utils
 {
@@ -18,6 +19,13 @@ namespace MakeConfig.Utils
 
             return self.Substring(0, self.Length - value.Length);
         }
-        
+
+        public static void Block(this IOutputWriter self, Action action)
+        {
+            self.BeginBlock();
+            action();
+            self.EndBlock();
+        }
+
     }
 }
