@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MakeConfig.Excel;
@@ -14,34 +13,25 @@ namespace MakeConfig.Processor
 
         public static void Run(string inputFolder)
         {
-            var mergedFiles = new Dictionary<string, List<FileInfo>>();
+            var configNameToTables = new Dictionary<string, List<VirtualDataTable>>();
             foreach (var file in WalkAllExcelFiles(inputFolder))
             {
-                //merge file
-                if (file.Name.Contains("_"))
+                var package = LoadExcelPackage(file.ToString());
+                foreach (var sheet in package.Workbook.Worksheets)
                 {
-                    var groupName = file.Name.Split(new[]{'_'}, 2)[0];
-                    mergedFiles.GetValueOrCreate(groupName).Add(file);
-                }
-                else
-                {
-                    mergedFiles.GetValueOrCreate(file.Name.RemoveLast(".xlsx")).Add(file);
+                    var table = new VirtualDataTable(file.Name, sheet);
+                    configNameToTables.GetValueOrCreate(table.ConfigName).Add(table);
                 }
             }
-
-            foreach (var kv in mergedFiles)
+            foreach (var kv in configNameToTables)
             {
-                Console.WriteLine(kv.Key);
-                foreach (var value in kv.Value)
-                {
-                    Console.WriteLine($"\t{value}");
-                }
+                TypeGenerator.GenerateType(kv.Key, kv.Value);
             }
         }
 
         private static IEnumerable<FileInfo> WalkAllExcelFiles(string inputFolder)
         {
-            return WalkAllFiles(inputFolder).Where(file => file.Name.EndsWith(".xlsx") && !file.Name.StartsWith("~$"));
+            return WalkAllFiles(inputFolder).Where(file => file.Name.EndsWith(Constant.Suffix) && !file.Name.StartsWith("~$"));
         }
 
         private static IEnumerable<FileInfo> WalkAllFiles(string inputFolder)

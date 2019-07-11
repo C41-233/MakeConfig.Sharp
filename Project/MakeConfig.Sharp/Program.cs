@@ -10,8 +10,7 @@ namespace MakeConfig
 
         private static void Main(string[] args)
         {
-            var inputFolder = @"D:\Workspace\MakeConfig.Sharp\Test\Input";
-            var inputConfig = @"D:\Workspace\MakeConfig.Sharp\Test\config.txt";
+            var inputFolder = @"..\..\..\..\Test\Input";
             DataProcessor.Run(inputFolder);
         }
 

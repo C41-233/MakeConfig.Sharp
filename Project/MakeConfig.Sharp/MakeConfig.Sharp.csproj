@@ -55,9 +55,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Excel\Constant.cs" />
     <Compile Include="Processor\DataProcessor.cs" />
     <Compile Include="Excel\VirtualDataTable.cs" />
-    <Compile Include="Processor\Output\IOutputHandler.cs" />
+    <Compile Include="Processor\TypeGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\CollectionUtils.cs" />
