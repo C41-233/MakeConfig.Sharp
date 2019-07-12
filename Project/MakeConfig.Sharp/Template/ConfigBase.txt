@@ -1,9 +1,14 @@
-﻿public abstract class ConfigBase<TConfig, TKey>
+﻿namespace #{0:Namespace}#
 {
-
-	public TConfig GetConfig(TKey key)
+	public abstract class ConfigBase<TConfig, TKey>
 	{
-		
-	}
 
+		public TKey #{0:IdName}# {get; internal set;}
+
+		public TConfig GetConfig(TKey key)
+		{
+	
+		}
+
+	}
 }

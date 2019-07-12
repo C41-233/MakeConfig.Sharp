@@ -28,14 +28,7 @@ namespace MakeConfig.Processor
 
             using (var writer = new FileWriter($"{Config.OutputFolder}/ConfigBase.cs"))
             {
-                writer.WriteLine($"namespace {Config.Namespace}");
-                writer.WriteLine("{");
-                writer.BeginBlock();
-                {
-                    TemplateFile.Copy("ConfigBase.txt", writer);
-                }
-                writer.EndBlock();
-                writer.WriteLine("}");
+                TemplateFile.Copy("ConfigBase.txt", writer);
             }
 
             foreach (var kv in configNameToTables)

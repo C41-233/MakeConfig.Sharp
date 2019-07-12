@@ -10,7 +10,15 @@ namespace MakeConfig
 
         private static void Main(string[] args)
         {
-            DataProcessor.Run();
+            try
+            {
+                DataProcessor.Run();
+            }
+            catch (MakeConfigException e)
+            {
+                Console.Error.WriteLine($"Error: {e.Message}");
+                Environment.Exit(-1);
+            }
         }
 
     }

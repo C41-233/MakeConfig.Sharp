@@ -11,11 +11,12 @@ namespace MakeConfig.Processor
         {
             public VirtualType Type;
             public string Name;
+            public string Description;
         }
 
         private readonly List<Field> fields = new List<Field>();
 
-        private Field keyField;
+        private Field idField;
 
         public string Name { get; }
 
@@ -24,21 +25,26 @@ namespace MakeConfig.Processor
             Name = name;
         }
 
-        public void AddField(VirtualType type, string name)
+        public void SetIdField(VirtualType type, string description)
+        {
+            var field = new Field
+            {
+                Type = type,
+                Description = description,
+                Name = "Id",
+            };
+            idField = field;
+        }
+
+        public void AddField(VirtualType type, string name, string description)
         {
             var field = new Field
             {
                 Type = type,
                 Name = name,
+                Description = description,
             };
-            if (name == "Id")
-            {
-                keyField = field;
-            }
-            else
-            {
-                fields.Add(field);   
-            }
+            fields.Add(field);   
         }
 
         public void Write(IOutputWriter writer)
@@ -47,18 +53,26 @@ namespace MakeConfig.Processor
             writer.WriteLine("{");
             writer.Block(() =>
             {
-                writer.WriteLine($"public sealed partial class {Name} : ConfigBase<{Name}, {keyField.Type.Name}>");
+                writer.WriteLine($"public sealed partial class {Name} : ConfigBase<{Name}, {idField.Type.Name}>");
                 writer.WriteLine("{");
                 writer.Block(() =>
                 {
                     foreach (var field in fields)
                     {
-                        writer.WriteLine($"public {field.Type.Name} {field.Name} {{get; private set;}}");
+                        WriteField(writer, field);
                     }
                 });
                 writer.WriteLine("}");
             });
             writer.WriteLine("}");
+        }
+
+        private static void WriteField(IOutputWriter writer, Field field)
+        {
+            writer.WriteLine("/// <summary>");
+            writer.WriteLine($"/// {field.Description}");
+            writer.WriteLine("/// </summary>");
+            writer.WriteLine($"public {field.Type.Name} {field.Name} {{get; internal set;}}");
         }
 
     }

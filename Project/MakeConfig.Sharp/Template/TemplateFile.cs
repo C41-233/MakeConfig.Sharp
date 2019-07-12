@@ -7,6 +7,10 @@ namespace MakeConfig.Template
     internal static class TemplateFile
     {
 
+        private static readonly TemplateFileFormat Format = new TemplateFileFormat();
+
+        private static readonly ConfigStub configStub = new ConfigStub();
+
         public static void Copy(string name, IOutputWriter writer)
         {
             var thisExe = Assembly.GetExecutingAssembly();
@@ -21,7 +25,12 @@ namespace MakeConfig.Template
                 string line;
                 while((line = reader.ReadLine()) != null)
                 {
-                    writer.WriteLine(line);
+                    line = line
+                        .Replace("{", "{{")
+                        .Replace("}", "}}")
+                        .Replace("#{{", "{")
+                        .Replace("}}#", "}");
+                    writer.WriteLine(string.Format(Format, line, configStub));
                 }
             }
         }

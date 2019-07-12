@@ -7,7 +7,7 @@ namespace MakeConfig.Processor
     {
 
         private readonly Type type;
-        
+
         public CLRType(Type type)
         {
             this.type = type;
@@ -24,6 +24,7 @@ namespace MakeConfig.Processor
                 return type.Name;
             }
         }
+
     }
 
 }

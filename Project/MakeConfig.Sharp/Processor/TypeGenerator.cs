@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
+using System.Linq;
 using MakeConfig.Excel;
 using MakeConfig.Output;
-using MakeConfig.Template;
-using MakeConfig.Utils;
 
 namespace MakeConfig.Processor
 {
@@ -17,18 +14,33 @@ namespace MakeConfig.Processor
             AssertSameMetas(tables);
 
             var table = tables[0];
+            AssertIdMeta(table, out var idMeta);
+
             var configType = new ConfigType(table.ConfigName);
-            foreach (var meta in table.ColumnMetas)
+
+            configType.SetIdField(VirtualTypePool.Get(idMeta.Type), idMeta.Description);
+
+            foreach (var meta in table.ColumnMetas.Skip(1))
             {
-                if (BuiltInType.TryGetBuiltIn(meta.Type, out var map))
-                {
-                    configType.AddField(new CLRType(map.Type), meta.Name);
-                }
+                configType.AddField(VirtualTypePool.Get(meta.Type), meta.Name, meta.Description);
             }
 
             using (var writer = new FileWriter($"{Config.OutputFolder}/{type}.cs"))
             {
                 configType.Write(writer);
+            }
+        }
+
+        private static void AssertIdMeta(VirtualDataTable table, out ColumnMeta meta)
+        {
+            if (!table.TryGetColumnMeta(0, out meta))
+            {
+                throw MakeConfigException.NeedId(table);
+            }
+
+            if (meta.Name != Config.IdName || meta.Constraint != "#id")
+            {
+                throw MakeConfigException.NeedId(table);
             }
         }
 
@@ -43,7 +55,7 @@ namespace MakeConfig.Processor
                 for (var i=1; i<tables.Count; i++)
                 {
                     var table = tables[i];
-                    if (!table.TryGetColumnMeta(column, out ColumnMeta meta))
+                    if (!table.TryGetColumnMeta(column, out var meta))
                     {
                         throw MakeConfigException.SheetNotMatch(target, table, column);
                     }

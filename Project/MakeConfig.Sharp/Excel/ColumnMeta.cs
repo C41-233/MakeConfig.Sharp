@@ -16,9 +16,24 @@
 
         public static bool Equals(ColumnMeta left, ColumnMeta right, out string column)
         {
-            if (left.Description != right.Description)
+            if (left.Name != right.Name)
             {
-                column = nameof(Description);
+                column = nameof(Name);
+                return false;
+            }
+            if (left.Constraint != right.Constraint)
+            {
+                column = nameof(Constraint);
+                return false;
+            }
+            if (left.Type != right.Type)
+            {
+                column = nameof(Type);
+                return false;
+            }
+            if (left.Tag != right.Tag)
+            {
+                column = nameof(Tag);
                 return false;
             }
             column = null;
