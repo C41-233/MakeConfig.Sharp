@@ -25,18 +25,19 @@ namespace MakeConfig.Processor
             Name = name;
         }
 
+        private readonly List<CustomType> innerTypes = new List<CustomType>();
+
         public void SetIdField(VirtualType type, string description)
         {
-            var field = new Field
-            {
-                Type = type,
-                Description = description,
-                Name = "Id",
-            };
-            idField = field;
+            idField = NewField(type, Config.IdName, description);
         }
 
         public void AddField(VirtualType type, string name, string description)
+        {
+            fields.Add(NewField(type, name, description));   
+        }
+
+        private Field NewField(VirtualType type, string name, string description)
         {
             var field = new Field
             {
@@ -44,7 +45,11 @@ namespace MakeConfig.Processor
                 Name = name,
                 Description = description,
             };
-            fields.Add(field);   
+            if (type is CustomType customType)
+            {
+                innerTypes.Add(customType);
+            }
+            return field;
         }
 
         public void Write(IOutputWriter writer)
@@ -57,9 +62,17 @@ namespace MakeConfig.Processor
                 writer.WriteLine("{");
                 writer.Block(() =>
                 {
+                    //fields
                     foreach (var field in fields)
                     {
                         WriteField(writer, field);
+                        writer.WriteLine();
+                    }
+
+                    //inner class
+                    foreach (var type in innerTypes)
+                    {
+                        type.Write(writer);
                     }
                 });
                 writer.WriteLine("}");
@@ -72,7 +85,7 @@ namespace MakeConfig.Processor
             writer.WriteLine("/// <summary>");
             writer.WriteLine($"/// {field.Description}");
             writer.WriteLine("/// </summary>");
-            writer.WriteLine($"public {field.Type.Name} {field.Name} {{get; internal set;}}");
+            writer.WriteLine($"public {field.Type.Name} {field.Name};");
         }
 
     }

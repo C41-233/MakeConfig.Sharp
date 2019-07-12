@@ -8,6 +8,7 @@ namespace MakeConfig.Output
     public interface IOutputWriter
     {
         void Write(string value);
+        void WriteLine();
         void WriteLine(string value);
         void BeginBlock();
         void EndBlock();
@@ -28,6 +29,11 @@ namespace MakeConfig.Output
             }
 
             Append(value);
+        }
+
+        public void WriteLine()
+        {
+            AppendLine();
         }
 
         public void WriteLine(string value)

@@ -57,7 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <Compile Include="Excel\BuiltInType.cs" />
+    <Compile Include="Processor\BuiltInType.cs" />
     <Compile Include="Excel\ColumnMeta.cs" />
     <Compile Include="Excel\Constant.cs" />
     <Compile Include="MakeConfigException.cs" />

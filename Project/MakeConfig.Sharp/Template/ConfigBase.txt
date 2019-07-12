@@ -3,7 +3,7 @@
 	public abstract class ConfigBase<TConfig, TKey>
 	{
 
-		public TKey #{0:IdName}# {get; internal set;}
+		public TKey #{0:IdName}#;
 
 		public TConfig GetConfig(TKey key)
 		{

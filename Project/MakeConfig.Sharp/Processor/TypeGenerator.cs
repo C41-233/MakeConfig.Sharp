@@ -18,17 +18,41 @@ namespace MakeConfig.Processor
 
             var configType = new ConfigType(table.ConfigName);
 
-            configType.SetIdField(VirtualTypePool.Get(idMeta.Type), idMeta.Description);
+            configType.SetIdField(GetType(idMeta.Name, idMeta.Type), idMeta.Description);
 
             foreach (var meta in table.ColumnMetas.Skip(1))
             {
-                configType.AddField(VirtualTypePool.Get(meta.Type), meta.Name, meta.Description);
+                configType.AddField(GetType(meta.Name, meta.Type), meta.Name, meta.Description);
             }
 
             using (var writer = new FileWriter($"{Config.OutputFolder}/{type}.cs"))
             {
                 configType.Write(writer);
             }
+        }
+
+        private static VirtualType GetType(string field, string type)
+        {
+            //self enum
+            if (type.StartsWith("{") && type.EndsWith("}"))
+            {
+                type = type.Substring(1, type.Length - 2);
+                var vt = new CustomEnumType(field + "Type");
+                foreach (var token in type.Split(','))
+                {
+                    if (token.Contains("="))
+                    {
+                        var split = token.Split(new []{'='}, 2);
+                        vt.Add(split[0], split[1]);
+                    }
+                    else
+                    {
+                        vt.Add(token.Trim());
+                    }
+                }
+                return vt;
+            }
+            return VirtualTypePool.Get(type);
         }
 
         private static void AssertIdMeta(VirtualDataTable table, out ColumnMeta meta)

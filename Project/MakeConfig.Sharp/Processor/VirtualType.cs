@@ -19,12 +19,28 @@ namespace MakeConfig.Processor
 
             if (BuiltInType.TryGetBuiltIn(type, out var map))
             {
-                vt = new CLRType(map.Type);
-                Data.Add(type, vt);
-                return vt;
+                return Add(type, new CLRType(map.Type));
+            }
+
+            //array
+            if (type.EndsWith("[]"))
+            {
+                var baseType = Get(type.Substring(0, type.Length - 2));
+                if (baseType == null)
+                {
+                    return null;
+                }
+
+                return Add(type, new ArrayType(baseType));
             }
 
             return null;
+        }
+
+        private static VirtualType Add(string type, VirtualType vt)
+        {
+            Data.Add(type, vt);
+            return vt;
         }
 
     }
@@ -34,5 +50,18 @@ namespace MakeConfig.Processor
 
         public abstract string Name { get; }
 
+    }
+
+    internal sealed class ArrayType : VirtualType
+    {
+
+        private readonly VirtualType baseType;
+
+        public ArrayType(VirtualType baseType)
+        {
+            this.baseType = baseType;
+        }
+
+        public override string Name => baseType.Name + "[]";
     }
 }

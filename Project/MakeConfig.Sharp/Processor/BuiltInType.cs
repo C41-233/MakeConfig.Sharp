@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using MakeConfig.Utils;
 
-namespace MakeConfig.Excel
+namespace MakeConfig.Processor
 {
 
     internal struct BuiltInTypeMap
@@ -32,6 +31,7 @@ namespace MakeConfig.Excel
             AddMap("ulong", typeof(ulong));
             AddMap("float", typeof(float));
             AddMap("double", typeof(double));
+            AddMap("bool", typeof(bool));
         }
 
         public static bool TryGetBuiltIn(string input, out BuiltInTypeMap map)
