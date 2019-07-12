@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 
 namespace MakeConfig.Utils
@@ -16,6 +17,21 @@ namespace MakeConfig.Utils
             }
 
             return value;
+        }
+
+        public static bool TryGetValue<V>(this IEnumerable<V> self, Predicate<V> predicate, out V value)
+        {
+            foreach (var e in self)
+            {
+                if (predicate(e))
+                {
+                    value = e;
+                    return true;
+                }    
+            }
+
+            value = default;
+            return false;
         }
 
     }

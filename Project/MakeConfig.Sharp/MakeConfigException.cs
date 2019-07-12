@@ -13,12 +13,11 @@ namespace MakeConfig
 
         public static MakeConfigException SheetNotMatch(VirtualDataTable left, VirtualDataTable right, int i)
         {
-            ColumnMeta meta;
-            if (!left.TryGetColumnMeta(i, out meta))
+            if (!left.TryGetColumnMeta(i, out _))
             {
                 throw new MakeConfigException($"分表{left.File}和{right.File}数据第{i}列不一致，左侧缺失");
             }
-            if (!right.TryGetColumnMeta(i, out meta))
+            if (!right.TryGetColumnMeta(i, out _))
             {
                 throw new MakeConfigException($"分表{left.File}和{right.File}数据第{i}列不一致，右侧缺失");
             }

@@ -10,8 +10,7 @@ namespace MakeConfig
 
         private static void Main(string[] args)
         {
-            var inputFolder = @"..\..\..\..\Test\Input";
-            DataProcessor.Run(inputFolder);
+            DataProcessor.Run();
         }
 
     }

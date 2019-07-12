@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using MakeConfig.Excel;
+using MakeConfig.Output;
+using MakeConfig.Template;
 using MakeConfig.Utils;
 using OfficeOpenXml;
 
@@ -11,10 +13,10 @@ namespace MakeConfig.Processor
     public static class DataProcessor
     {
 
-        public static void Run(string inputFolder)
+        public static void Run()
         {
             var configNameToTables = new Dictionary<string, List<VirtualDataTable>>();
-            foreach (var file in WalkAllExcelFiles(inputFolder))
+            foreach (var file in WalkAllExcelFiles(Config.InputFolder))
             {
                 var package = LoadExcelPackage(file.ToString());
                 foreach (var sheet in package.Workbook.Worksheets)
@@ -23,6 +25,19 @@ namespace MakeConfig.Processor
                     configNameToTables.GetValueOrCreate(table.ConfigName).Add(table);
                 }
             }
+
+            using (var writer = new FileWriter($"{Config.OutputFolder}/ConfigBase.cs"))
+            {
+                writer.WriteLine($"namespace {Config.Namespace}");
+                writer.WriteLine("{");
+                writer.BeginBlock();
+                {
+                    TemplateFile.Copy("ConfigBase.txt", writer);
+                }
+                writer.EndBlock();
+                writer.WriteLine("}");
+            }
+
             foreach (var kv in configNameToTables)
             {
                 TypeGenerator.GenerateType(kv.Key, kv.Value);

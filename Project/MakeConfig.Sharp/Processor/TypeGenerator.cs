@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using MakeConfig.Excel;
 using MakeConfig.Output;
+using MakeConfig.Template;
+using MakeConfig.Utils;
 
 namespace MakeConfig.Processor
 {
@@ -18,15 +20,16 @@ namespace MakeConfig.Processor
             var configType = new ConfigType(table.ConfigName);
             foreach (var meta in table.ColumnMetas)
             {
-                if (meta.Type == "string")
+                if (BuiltInType.TryGetBuiltIn(meta.Type, out var map))
                 {
-                    configType.AddField(new RuntimeType(typeof(string)), meta.Name);
+                    configType.AddField(new CLRType(map.Type), meta.Name);
                 }
             }
 
-            var writer = new StringWriter();
-            configType.Write(writer);
-            Console.WriteLine(writer);
+            using (var writer = new FileWriter($"{Config.OutputFolder}/{type}.cs"))
+            {
+                configType.Write(writer);
+            }
         }
 
         private static void AssertSameMetas(List<VirtualDataTable> tables)
