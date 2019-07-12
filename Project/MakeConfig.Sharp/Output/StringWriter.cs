@@ -33,6 +33,7 @@ namespace MakeConfig.Output
 
         public void WriteLine()
         {
+            newLine = true;
             AppendLine();
         }
 
@@ -42,6 +43,8 @@ namespace MakeConfig.Output
             {
                 WriteBlocks();
             }
+
+            newLine = true;
             Append(value);
             AppendLine();
         }

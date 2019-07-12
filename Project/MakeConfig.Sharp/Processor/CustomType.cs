@@ -18,6 +18,58 @@ namespace MakeConfig.Processor
         public abstract void Write(IOutputWriter writer);
     }
 
+    internal sealed class CustomStructType : CustomType
+    {
+
+        private struct Field
+        {
+            public VirtualType Type;
+            public string Name;
+        }
+
+        private readonly List<Field> fields = new List<Field>();
+        private readonly List<CustomType> innerTypes = new List<CustomType>();
+
+        public CustomStructType(string name) : base(name)
+        {
+        }
+
+        public override void Write(IOutputWriter writer)
+        {
+            writer.WriteLine($"public struct {Name}");
+            writer.WriteLine("{");
+            writer.Block(() =>
+            {
+                foreach (var field in fields)
+                {
+                    writer.WriteLine($"public {field.Type.Name} {field.Name};");
+                    writer.WriteLine();
+                }
+
+                foreach (var type in innerTypes)
+                {
+                    type.Write(writer);
+                    writer.WriteLine();
+                }
+            });
+            writer.WriteLine("}");
+            writer.WriteLine();
+        }
+
+        public void AddField(string field, VirtualType type)
+        {
+            fields.Add(new Field
+            {
+                Name = field,
+                Type = type,
+            });
+            if (type is CustomType customType)
+            {
+                innerTypes.Add(customType);
+            }
+        }
+    }
+
     internal sealed class CustomEnumType : CustomType
     {
         private readonly Dictionary<string, string> fields = new Dictionary<string, string>();
@@ -55,6 +107,7 @@ namespace MakeConfig.Processor
                 }
             });
             writer.WriteLine("}");
+            writer.WriteLine();
         }
     }
 
