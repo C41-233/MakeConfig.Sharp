@@ -7,7 +7,7 @@
 
 		public TConfig GetConfig(TKey key)
 		{
-	
+			return default;
 		}
 
 	}
