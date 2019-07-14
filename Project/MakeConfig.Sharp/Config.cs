@@ -10,7 +10,7 @@ namespace MakeConfig
 
         public static string InputFolder = @"..\..\..\..\Test\Input";
 
-        public static string OutputFolder = @"..\..\..\..\Test\Output";
+        public static string OutputFolder = @"..\..\..\..\Test\Output\AutoGen";
 
     }
 }
