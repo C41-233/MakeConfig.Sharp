@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BaseType
+﻿namespace BaseType
 {
-    public class Class1
+
+    public class ActionItem
     {
+
+        public uint ItemId;
+        public float Rate;
+
     }
+
 }
