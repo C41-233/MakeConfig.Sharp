@@ -16,7 +16,7 @@ namespace MakeConfig.Processor.DataType
         {
             get
             {
-                if (BuiltInTypePool.TryGetBuiltIn(type, out var map))
+                if (BuiltInTypePool.TryGetType(type, out var map))
                 {
                     return map.Output;
                 }

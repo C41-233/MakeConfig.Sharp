@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MakeConfig.Utils
 {
-    public static class CollectionUtils
+    internal static class CollectionUtils
     {
 
         public static V GetValueOrCreate<K, V>(this Dictionary<K, V> dictionary, K key) where V : new()

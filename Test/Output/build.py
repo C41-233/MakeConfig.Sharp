@@ -21,3 +21,5 @@ cmd = '"' + csc_path + '"' + option
 print(cmd)
 
 subprocess.call(cmd, shell=True)
+
+os.system("pause")

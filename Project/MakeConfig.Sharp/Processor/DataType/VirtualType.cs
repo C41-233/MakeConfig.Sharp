@@ -10,14 +10,21 @@ namespace MakeConfig.Processor.DataType
 
         public static VirtualType Get(string type)
         {
+            type = type.Trim();
+
             if (Data.TryGetValue(type, out var vt))
             {
                 return vt;
             }
 
-            if (BuiltInTypePool.TryGetBuiltIn(type, out var map))
+            if (BuiltInTypePool.TryGetType(type, out var map))
             {
                 return Add(type, new CLRType(map.Type));
+            }
+
+            if (ImportTypePool.TryGetType(type, out var clrType))
+            {
+                return Add(type, new CLRType(clrType));
             }
 
             //array

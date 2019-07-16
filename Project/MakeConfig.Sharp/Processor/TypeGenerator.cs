@@ -21,7 +21,7 @@ namespace MakeConfig.Processor
 
             var configType = new ConfigType(table.ConfigName);
 
-            configType.SetIdField(GetType(idMeta.Name, idMeta.Type), idMeta.Description);
+            configType.AddField(GetType(idMeta.Name, idMeta.Type), Config.IdName, idMeta.Description);
 
             foreach (var meta in table.ColumnMetas.Skip(1))
             {
@@ -32,7 +32,7 @@ namespace MakeConfig.Processor
                 }
                 catch (MakeConfigException e)
                 {
-                    throw new MakeConfigException($"在文件{table.File}中解析字段{field}时遇到错误：{e.Message}");
+                    throw new MakeConfigException($"在文件{table.File.GetAbsolutePath()}中解析字段{field}时遇到错误：{e.Message}");
                 }
             }
 

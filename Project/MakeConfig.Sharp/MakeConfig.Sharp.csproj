@@ -59,7 +59,7 @@
     <Compile Include="Config.cs" />
     <Compile Include="Output\FileWriter.cs" />
     <Compile Include="Output\IOutputWriter.cs" />
-    <Compile Include="Processor\BuiltInTypePool.cs" />
+    <Compile Include="Processor\DataType\BuiltInTypePool.cs" />
     <Compile Include="Excel\ColumnMeta.cs" />
     <Compile Include="Excel\Constant.cs" />
     <Compile Include="MakeConfigException.cs" />
@@ -68,7 +68,7 @@
     <Compile Include="Processor\DataType\CustomType.cs" />
     <Compile Include="Processor\DataProcessor.cs" />
     <Compile Include="Excel\VirtualDataTable.cs" />
-    <Compile Include="Processor\ImportTypePool.cs" />
+    <Compile Include="Processor\DataType\ImportTypePool.cs" />
     <Compile Include="Processor\TypeGenerator.cs" />
     <Compile Include="Processor\ConfigType.cs" />
     <Compile Include="Processor\DataType\VirtualType.cs" />
@@ -77,6 +77,7 @@
     <Compile Include="Template\TemplateFile.cs" />
     <Compile Include="Template\TemplateFileFormat.cs" />
     <Compile Include="Utils\CollectionUtils.cs" />
+    <Compile Include="Utils\FileUtils.cs" />
     <Compile Include="Utils\StringUtils.cs" />
   </ItemGroup>
   <ItemGroup>

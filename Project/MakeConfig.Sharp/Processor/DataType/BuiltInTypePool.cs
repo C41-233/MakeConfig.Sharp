@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MakeConfig.Utils;
 
-namespace MakeConfig.Processor
+namespace MakeConfig.Processor.DataType
 {
 
     internal struct BuiltInTypeMap
@@ -34,12 +34,12 @@ namespace MakeConfig.Processor
             AddMap("bool", typeof(bool));
         }
 
-        public static bool TryGetBuiltIn(string input, out BuiltInTypeMap map)
+        public static bool TryGetType(string input, out BuiltInTypeMap map)
         {
             return InputToMap.TryGetValue(v => v.Input == input, out map);
         }
 
-        public static bool TryGetBuiltIn(Type type, out BuiltInTypeMap map)
+        public static bool TryGetType(Type type, out BuiltInTypeMap map)
         {
             return InputToMap.TryGetValue(v => v.Type == type, out map);
         }

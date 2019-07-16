@@ -28,14 +28,21 @@ namespace MakeConfig.Processor
 
         private readonly List<CustomType> innerTypes = new List<CustomType>();
 
-        public void SetIdField(VirtualType type, string description)
-        {
-            idField = NewField(type, Config.IdName, description);
-        }
-
         public void AddField(VirtualType type, string name, string description)
         {
-            fields.Add(NewField(type, name, description));   
+            if (name == Config.IdName)
+            {
+                idField = NewField(type, name, description);
+            }
+            else
+            {
+                fields.Add(NewField(type, name, description));
+            }
+        }
+
+        public void AddPartialField(CLRType rootType, string fullFieldName, string description)
+        {
+
         }
 
         private Field NewField(VirtualType type, string name, string description)

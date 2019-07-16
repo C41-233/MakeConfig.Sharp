@@ -4,7 +4,7 @@ using MakeConfig.Output;
 
 namespace MakeConfig.Utils
 {
-    public static class StringUtils
+    internal static class StringUtils
     {
 
         public static string RemoveFirst(this string self, string value)
