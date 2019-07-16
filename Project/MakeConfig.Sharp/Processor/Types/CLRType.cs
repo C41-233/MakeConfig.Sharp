@@ -7,23 +7,19 @@ namespace MakeConfig.Processor.Types
 
         public Type Type { get; }
 
+        public CLRType(string name, Type type)
+        {
+            Type = type;
+            this.Name = name;
+        }
+
         public CLRType(Type type)
         {
             Type = type;
+            Name = type.Name;
         }
 
-        public override string Name
-        {
-            get
-            {
-                if (BuiltInTypePool.TryGetType(Type, out var map))
-                {
-                    return map.Output;
-                }
-                return Type.Name;
-            }
-        }
-
+        public override string Name { get; }
     }
 
 }

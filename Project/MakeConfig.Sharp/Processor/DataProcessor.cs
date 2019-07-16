@@ -36,7 +36,7 @@ namespace MakeConfig.Processor
             if (Config.BaseTypeDll != null)
             {
                 var assembly = Assembly.ReflectionOnlyLoadFrom(Config.BaseTypeDll);
-                ImportTypePool.Load(assembly);
+                VirtualTypePool.Load(assembly);
             }
 
             foreach (var kv in configNameToTables)

@@ -27,11 +27,14 @@ namespace MakeConfig.Processor.Constraints
 
         private static IConstraint ParseInternal(string value)
         {
-            if (!ImportTypePool.TryGetType(value, out var type))
+            value = value.Trim();
+            var type = VirtualTypePool.Get(value);
+            if (type is CLRType clrType)
             {
-                return null;
+                return new ImportTypeConstraint(clrType);
             }
-            return new ImportTypeConstraint(type);
+
+            return null;
         }
 
     }
@@ -43,9 +46,9 @@ namespace MakeConfig.Processor.Constraints
     internal sealed class ImportTypeConstraint : IConstraint
     {
 
-        public Type Type { get; }
+        public CLRType Type { get; }
 
-        public ImportTypeConstraint(Type type)
+        public ImportTypeConstraint(CLRType type)
         {
             Type = type;
         }

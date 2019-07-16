@@ -75,7 +75,7 @@ namespace MakeConfig.Processor
             {
                 if (field.Value.ImportTypeConstraint != null)
                 {
-                    var clrType = VirtualTypePool.GetCLRType(field.Value.ImportTypeConstraint.Type);
+                    var clrType = field.Value.ImportTypeConstraint.Type;
                     configType.AddField(clrType, field.Key, null);
                 }
             }
