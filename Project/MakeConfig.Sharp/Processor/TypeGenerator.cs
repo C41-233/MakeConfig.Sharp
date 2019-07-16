@@ -15,8 +15,15 @@ namespace MakeConfig.Processor
 
         private class SplitField
         {
-            public List<string> DeclaredMembers = new List<string>();
+            public readonly List<DeclaredMember> DeclaredMembers = new List<DeclaredMember>();
             public ImportTypeConstraint ImportTypeConstraint;
+        }
+
+        private struct DeclaredMember
+        {
+            public string Name;
+            public VirtualType Type;
+            public string Description;
         }
 
         public static void GenerateType(string type, List<VirtualDataTable> tables)
@@ -28,7 +35,7 @@ namespace MakeConfig.Processor
 
             var configType = new ConfigType(table.ConfigName);
 
-            configType.SetIdField(GetType(idMeta.Name, idMeta.Type), idMeta.Description);
+            configType.SetIdField(GetType(idMeta.Name, idMeta.Type, idMeta.Description), idMeta.Description);
 
             var splitFields = new Dictionary<string, SplitField>();
 
@@ -37,6 +44,8 @@ namespace MakeConfig.Processor
                 var field = meta.Name.Trim();
                 try
                 {
+                    var fieldType = GetType(field, meta.Type, meta.Description);
+
                     var constraints = Constraint.Parse(meta.Constraint);
                     if (field.Contains("."))
                     {
@@ -56,13 +65,20 @@ namespace MakeConfig.Processor
                             {
                                 ImportTypeConstraint = importTypeConstraint,
                             };
-                            splitField.DeclaredMembers.Add(field);
                             splitFields.Add(tokens[0], splitField);
                         }
+
+                        splitField.DeclaredMembers.Add(new DeclaredMember
+                        {
+                            Name = tokens[1],
+                            Type = fieldType,
+                            Description = meta.Description,
+                        });
+                        importTypeConstraint?.CheckFieldReference(tokens[1], fieldType);
                     }
                     else
                     {
-                        configType.AddField(GetType(field, meta.Type), field, meta.Description);
+                        configType.AddField(fieldType, field, meta.Description);
                     }
                 }
                 catch (MakeConfigException e)
@@ -73,10 +89,17 @@ namespace MakeConfig.Processor
 
             foreach (var field in splitFields)
             {
+                //import type
                 if (field.Value.ImportTypeConstraint != null)
                 {
                     var clrType = field.Value.ImportTypeConstraint.Type;
                     configType.AddField(clrType, field.Key, null);
+                }
+                //self type
+                else
+                {
+                    var virtualType = CreateSplitType(field.Key, field.Value.DeclaredMembers);
+                    configType.AddField(virtualType, field.Key, null);
                 }
             }
 
@@ -86,7 +109,7 @@ namespace MakeConfig.Processor
             }
         }
 
-        private static VirtualType GetType(string field, string type)
+        private static VirtualType GetType(string field, string type, string description)
         {
             {
                 if (TryCreateEnumType(field, type, out var vt))
@@ -95,7 +118,7 @@ namespace MakeConfig.Processor
                 }
             }
             {
-                if (TryCreateStructType(field, type, out var vt))
+                if (TryCreateStructType(field, type, description, out var vt))
                 {
                     return vt;
                 }
@@ -144,7 +167,7 @@ namespace MakeConfig.Processor
             return true;
         }
 
-        private static bool TryCreateStructType(string field, string type, out CustomStructType vt)
+        private static bool TryCreateStructType(string field, string type, string description, out CustomStructType vt)
         {
 
             if (!type.StartsWith("struct"))
@@ -193,17 +216,27 @@ namespace MakeConfig.Processor
                 tokens.Add(sb.ToString());
             }
 
-            vt = new CustomStructType(field + "Type");
+            vt = new CustomStructType(field + "Type", true);
             foreach (var token in tokens)
             {
                 var whitespace = token.LastIndexOf(' ');
                 var splits = token.SplitAt(whitespace);
                 var fieldType = splits[0].Trim();
                 var fieldName = splits[1].Trim();
-                vt.AddField(fieldName, GetType(fieldName, fieldType));
+                vt.AddField(fieldName, GetType(fieldName, fieldType, description), description);
             }
 
             return true;
+        }
+
+        private static VirtualType CreateSplitType(string rootName, List<DeclaredMember> declaredMembers)
+        {
+            var type = new CustomStructType(rootName + "Type");
+            foreach (var member in declaredMembers)
+            {
+                type.AddField(member.Name, member.Type, member.Description);
+            }
+            return type;
         }
 
         private static void AssertIdMeta(VirtualDataTable table, out ColumnMeta meta)

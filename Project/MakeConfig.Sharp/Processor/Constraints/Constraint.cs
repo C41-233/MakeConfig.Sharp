@@ -42,36 +42,4 @@ namespace MakeConfig.Processor.Constraints
     internal interface IConstraint
     {
     }
-
-    internal sealed class ImportTypeConstraint : IConstraint
-    {
-
-        public CLRType Type { get; }
-
-        public ImportTypeConstraint(CLRType type)
-        {
-            Type = type;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is ImportTypeConstraint other)
-            {
-                return Equals(other);
-            }
-
-            return false;
-        }
-
-        private bool Equals(ImportTypeConstraint other)
-        {
-            return Type == other.Type;
-        }
-
-        public override int GetHashCode()
-        {
-            return Type?.GetHashCode() ?? 0;
-        }
-    }
-
 }

@@ -25,23 +25,34 @@ namespace MakeConfig.Processor.Types
         {
             public VirtualType Type;
             public string Name;
+            public string Description;
         }
 
         private readonly List<Field> fields = new List<Field>();
         private readonly List<CustomType> innerTypes = new List<CustomType>();
 
-        public CustomStructType(string name) : base(name)
+        private readonly bool isStruct;
+
+        public CustomStructType(string name, bool isStruct = false) : base(name)
         {
+            this.isStruct = isStruct;
         }
 
         public override void Write(IOutputWriter writer)
         {
-            writer.WriteLine($"public struct {Name}");
+            var keyword = isStruct ? "struct" : "class";
+            writer.WriteLine($"public {keyword} {Name}");
             writer.WriteLine("{");
             writer.Block(() =>
             {
                 foreach (var field in fields)
                 {
+                    if (field.Description != null)
+                    {
+                        writer.WriteLine("/// <summary>");
+                        writer.WriteLine($"/// {field.Description}");
+                        writer.WriteLine("/// </summary>");
+                    }
                     writer.WriteLine($"public {field.Type.Name} {field.Name};");
                     writer.WriteLine();
                 }
@@ -56,12 +67,13 @@ namespace MakeConfig.Processor.Types
             writer.WriteLine();
         }
 
-        public void AddField(string field, VirtualType type)
+        public void AddField(string field, VirtualType type, string description)
         {
             fields.Add(new Field
             {
                 Name = field,
                 Type = type,
+                Description = description,
             });
             if (type is CustomType customType)
             {

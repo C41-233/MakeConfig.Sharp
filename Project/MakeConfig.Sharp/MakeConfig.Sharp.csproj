@@ -64,6 +64,7 @@
     <Compile Include="Excel\Constant.cs" />
     <Compile Include="MakeConfigException.cs" />
     <Compile Include="Output\StringWriter.cs" />
+    <Compile Include="Processor\Constraints\ImportTypeConstraint.cs" />
     <Compile Include="Processor\Types\CLRType.cs" />
     <Compile Include="Processor\Types\CustomType.cs" />
     <Compile Include="Processor\DataProcessor.cs" />

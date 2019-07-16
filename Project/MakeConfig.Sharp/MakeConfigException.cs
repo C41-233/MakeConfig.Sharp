@@ -45,14 +45,24 @@ namespace MakeConfig
             throw new MakeConfigException($"无法解析的数据类型：{type}");
         }
 
-        public static Exception IllegalConstraint(string constraint)
+        public static MakeConfigException IllegalConstraint(string constraint)
         {
             throw new MakeConfigException($"无法解析的约束：{constraint}");
         }
 
-        public static Exception ImportTypeConstraintNotMatch()
+        public static MakeConfigException ImportTypeConstraintNotMatch()
         {
             throw new MakeConfigException($"拆分字段的导入类型约束不一致");
+        }
+
+        public static MakeConfigException FieldReferenceNotExist(string field)
+        {
+            throw new MakeConfigException($"不存在的字段引用{field}");
+        }
+
+        public static MakeConfigException FieldReferenceTypeNotMatch(string field, string expect, string real)
+        {
+            throw new MakeConfigException($"字段引用{field}类型错误，期望{expect}，实际{real}");
         }
     }
 }
