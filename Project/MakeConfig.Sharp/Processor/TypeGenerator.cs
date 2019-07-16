@@ -35,7 +35,7 @@ namespace MakeConfig.Processor
 
             var configType = new ConfigType(table.ConfigName);
 
-            configType.SetIdField(GetType(idMeta.Name, idMeta.Type, idMeta.Description), idMeta.Description);
+            configType.SetIdField(GetType(idMeta.Name, idMeta.Type), idMeta.Description);
 
             var splitFields = new Dictionary<string, SplitField>();
 
@@ -44,7 +44,7 @@ namespace MakeConfig.Processor
                 var field = meta.Name.Trim();
                 try
                 {
-                    var fieldType = GetType(field, meta.Type, meta.Description);
+                    var fieldType = GetType(field, meta.Type);
 
                     var constraints = Constraint.Parse(meta.Constraint);
                     if (field.Contains("."))
@@ -109,7 +109,7 @@ namespace MakeConfig.Processor
             }
         }
 
-        private static VirtualType GetType(string field, string type, string description)
+        private static VirtualType GetType(string field, string type)
         {
             {
                 if (TryCreateEnumType(field, type, out var vt))
@@ -118,7 +118,7 @@ namespace MakeConfig.Processor
                 }
             }
             {
-                if (TryCreateStructType(field, type, description, out var vt))
+                if (TryCreateStructType(field, type, out var vt))
                 {
                     return vt;
                 }
@@ -167,7 +167,7 @@ namespace MakeConfig.Processor
             return true;
         }
 
-        private static bool TryCreateStructType(string field, string type, string description, out CustomStructType vt)
+        private static bool TryCreateStructType(string field, string type, out CustomStructType vt)
         {
 
             if (!type.StartsWith("struct"))
@@ -223,7 +223,7 @@ namespace MakeConfig.Processor
                 var splits = token.SplitAt(whitespace);
                 var fieldType = splits[0].Trim();
                 var fieldName = splits[1].Trim();
-                vt.AddField(fieldName, GetType(fieldName, fieldType, description), description);
+                vt.AddField(fieldName, GetType(fieldName, fieldType), null);
             }
 
             return true;
