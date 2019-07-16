@@ -12,5 +12,7 @@ namespace MakeConfig
 
         public static string OutputFolder = @"..\..\..\..\Test\Output\AutoGen";
 
+        public static string BaseTypeDll = @"..\..\..\..\Test\BaseType\bin\BaseType.dll";
+
     }
 }

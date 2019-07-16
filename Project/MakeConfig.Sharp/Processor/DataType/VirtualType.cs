@@ -1,8 +1,6 @@
-﻿
-using System.Collections.Generic;
-using MakeConfig.Excel;
+﻿using System.Collections.Generic;
 
-namespace MakeConfig.Processor
+namespace MakeConfig.Processor.DataType
 {
 
     internal static class VirtualTypePool
@@ -17,7 +15,7 @@ namespace MakeConfig.Processor
                 return vt;
             }
 
-            if (BuiltInType.TryGetBuiltIn(type, out var map))
+            if (BuiltInTypePool.TryGetBuiltIn(type, out var map))
             {
                 return Add(type, new CLRType(map.Type));
             }

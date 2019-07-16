@@ -1,7 +1,6 @@
 ﻿using System;
-using MakeConfig.Excel;
 
-namespace MakeConfig.Processor
+namespace MakeConfig.Processor.DataType
 {
     internal sealed class CLRType : VirtualType
     {
@@ -17,7 +16,7 @@ namespace MakeConfig.Processor
         {
             get
             {
-                if (BuiltInType.TryGetBuiltIn(type, out var map))
+                if (BuiltInTypePool.TryGetBuiltIn(type, out var map))
                 {
                     return map.Output;
                 }

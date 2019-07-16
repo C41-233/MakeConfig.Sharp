@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using MakeConfig.Excel;
 using MakeConfig.Output;
 using MakeConfig.Template;
@@ -29,6 +30,12 @@ namespace MakeConfig.Processor
             using (var writer = new FileWriter($"{Config.OutputFolder}/ConfigBase.cs"))
             {
                 TemplateFile.Copy("ConfigBase.txt", writer);
+            }
+
+            if (Config.BaseTypeDll != null)
+            {
+                var assembly = Assembly.ReflectionOnlyLoadFrom(Config.BaseTypeDll);
+                ImportTypePool.Load(assembly);
             }
 
             foreach (var kv in configNameToTables)

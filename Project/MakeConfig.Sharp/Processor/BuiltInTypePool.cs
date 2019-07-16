@@ -12,12 +12,12 @@ namespace MakeConfig.Processor
         public string Output;
     }
 
-    internal static class BuiltInType
+    internal static class BuiltInTypePool
     {
 
         private static readonly List<BuiltInTypeMap> InputToMap = new List<BuiltInTypeMap>();
 
-        static BuiltInType()
+        static BuiltInTypePool()
         {
             AddMap("string", typeof(string));
             AddMap("char", typeof(char));
