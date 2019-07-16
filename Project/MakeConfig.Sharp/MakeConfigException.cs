@@ -1,5 +1,6 @@
 ﻿using System;
 using MakeConfig.Excel;
+using MakeConfig.Processor.Constraints;
 using MakeConfig.Utils;
 
 namespace MakeConfig
@@ -44,5 +45,14 @@ namespace MakeConfig
             throw new MakeConfigException($"无法解析的数据类型：{type}");
         }
 
+        public static Exception IllegalConstraint(string constraint)
+        {
+            throw new MakeConfigException($"无法解析的约束：{constraint}");
+        }
+
+        public static Exception ImportTypeConstraintNotMatch()
+        {
+            throw new MakeConfigException($"拆分字段的导入类型约束不一致");
+        }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MakeConfig.Utils;
 
-namespace MakeConfig.Processor.DataType
+namespace MakeConfig.Processor.Types
 {
 
     internal struct BuiltInTypeMap

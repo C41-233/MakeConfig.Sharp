@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace MakeConfig.Processor.DataType
+namespace MakeConfig.Processor.Types
 {
 
+    //todo CLRType提前导入，运行时不允许生成
     internal static class VirtualTypePool
     {
 
@@ -40,6 +43,11 @@ namespace MakeConfig.Processor.DataType
             }
 
             return null;
+        }
+
+        public static VirtualType GetCLRType(Type type)
+        {
+            return Data.Values.FirstOrDefault(vt => (vt is CLRType clrType) && clrType.Type == type);
         }
 
         private static VirtualType Add(string type, VirtualType vt)

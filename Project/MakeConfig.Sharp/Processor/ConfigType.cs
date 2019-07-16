@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using MakeConfig.Output;
-using MakeConfig.Processor.DataType;
+using MakeConfig.Processor.Types;
 using MakeConfig.Utils;
 
 namespace MakeConfig.Processor
@@ -28,21 +28,14 @@ namespace MakeConfig.Processor
 
         private readonly List<CustomType> innerTypes = new List<CustomType>();
 
-        public void AddField(VirtualType type, string name, string description)
+        public void SetIdField(VirtualType type, string description)
         {
-            if (name == Config.IdName)
-            {
-                idField = NewField(type, name, description);
-            }
-            else
-            {
-                fields.Add(NewField(type, name, description));
-            }
+            idField = NewField(type, Config.IdName, description);
         }
 
-        public void AddPartialField(CLRType rootType, string fullFieldName, string description)
+        public void AddField(VirtualType type, string name, string description)
         {
-
+            fields.Add(NewField(type, name, description));   
         }
 
         private Field NewField(VirtualType type, string name, string description)
@@ -90,9 +83,12 @@ namespace MakeConfig.Processor
 
         private static void WriteField(IOutputWriter writer, Field field)
         {
-            writer.WriteLine("/// <summary>");
-            writer.WriteLine($"/// {field.Description}");
-            writer.WriteLine("/// </summary>");
+            if (!string.IsNullOrWhiteSpace(field.Description))
+            {
+                writer.WriteLine("/// <summary>");
+                writer.WriteLine($"/// {field.Description}");
+                writer.WriteLine("/// </summary>");
+            }
             writer.WriteLine($"public {field.Type.Name} {field.Name};");
         }
 

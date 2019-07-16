@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using MakeConfig.Excel;
 using MakeConfig.Output;
-using MakeConfig.Processor.DataType;
+using MakeConfig.Processor.Types;
 using MakeConfig.Template;
 using MakeConfig.Utils;
 using OfficeOpenXml;

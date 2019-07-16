@@ -3,7 +3,8 @@ using System.Linq;
 using System.Text;
 using MakeConfig.Excel;
 using MakeConfig.Output;
-using MakeConfig.Processor.DataType;
+using MakeConfig.Processor.Constraints;
+using MakeConfig.Processor.Types;
 using MakeConfig.Utils;
 
 namespace MakeConfig.Processor
@@ -11,6 +12,12 @@ namespace MakeConfig.Processor
 
     internal static class TypeGenerator
     {
+
+        private class SplitField
+        {
+            public List<string> DeclaredMembers = new List<string>();
+            public ImportTypeConstraint ImportTypeConstraint;
+        }
 
         public static void GenerateType(string type, List<VirtualDataTable> tables)
         {
@@ -21,18 +28,55 @@ namespace MakeConfig.Processor
 
             var configType = new ConfigType(table.ConfigName);
 
-            configType.AddField(GetType(idMeta.Name, idMeta.Type), Config.IdName, idMeta.Description);
+            configType.SetIdField(GetType(idMeta.Name, idMeta.Type), idMeta.Description);
+
+            var splitFields = new Dictionary<string, SplitField>();
 
             foreach (var meta in table.ColumnMetas.Skip(1))
             {
-                var field = meta.Name;
+                var field = meta.Name.Trim();
                 try
                 {
-                    configType.AddField(GetType(field, meta.Type), field, meta.Description);
+                    var constraints = Constraint.Parse(meta.Constraint);
+                    if (field.Contains("."))
+                    {
+                        var importTypeConstraint = (ImportTypeConstraint)constraints.FirstOrDefault(c => c is ImportTypeConstraint);
+
+                        var tokens = field.Split(new[] {'.'}, 2);
+                        if (splitFields.TryGetValue(tokens[0], out var splitField))
+                        {
+                            if (!Equals(splitField.ImportTypeConstraint, importTypeConstraint))
+                            {
+                                throw MakeConfigException.ImportTypeConstraintNotMatch();
+                            }
+                        }
+                        else
+                        {
+                            splitField = new SplitField
+                            {
+                                ImportTypeConstraint = importTypeConstraint,
+                            };
+                            splitField.DeclaredMembers.Add(field);
+                            splitFields.Add(tokens[0], splitField);
+                        }
+                    }
+                    else
+                    {
+                        configType.AddField(GetType(field, meta.Type), field, meta.Description);
+                    }
                 }
                 catch (MakeConfigException e)
                 {
                     throw new MakeConfigException($"在文件{table.File.GetAbsolutePath()}中解析字段{field}时遇到错误：{e.Message}");
+                }
+            }
+
+            foreach (var field in splitFields)
+            {
+                if (field.Value.ImportTypeConstraint != null)
+                {
+                    var clrType = VirtualTypePool.GetCLRType(field.Value.ImportTypeConstraint.Type);
+                    configType.AddField(clrType, field.Key, null);
                 }
             }
 

@@ -2,7 +2,7 @@
 using MakeConfig.Output;
 using MakeConfig.Utils;
 
-namespace MakeConfig.Processor.DataType
+namespace MakeConfig.Processor.Types
 {
 
     internal abstract class CustomType : VirtualType

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 
-namespace MakeConfig.Processor.DataType
+namespace MakeConfig.Processor.Types
 {
     internal static class ImportTypePool
     {
@@ -17,7 +16,6 @@ namespace MakeConfig.Processor.DataType
                 types.Add(type.Name, type);
             }
         }
-
 
         public static bool TryGetType(string type, out Type clrType)
         {

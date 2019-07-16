@@ -18,6 +18,16 @@ namespace MakeConfig.Utils
             return value;
         }
 
+        public static V GetValueOrDefault<K, V>(this Dictionary<K, V> dictionary, K key)
+        {
+            if (!dictionary.TryGetValue(key, out var value))
+            {
+                return value;
+            }
+
+            return value;
+        }
+
         public static bool TryGetValue<V>(this IEnumerable<V> self, Predicate<V> predicate, out V value)
         {
             foreach (var e in self)
