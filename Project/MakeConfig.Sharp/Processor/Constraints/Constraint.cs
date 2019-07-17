@@ -1,40 +1,39 @@
-﻿using System;
-using MakeConfig.Processor.Types;
+﻿using MakeConfig.Processor.Types;
 
 namespace MakeConfig.Processor.Constraints
 {
 
+    internal class ConstraintDescription
+    {
+        public bool Def;
+    }
 
     internal static class Constraint
     {
 
-        public static IConstraint[] Parse(string value)
+        public static ConstraintDescription Parse(string value)
         {
             value = value.Trim();
+            var description = new ConstraintDescription();
             if (string.IsNullOrEmpty(value))
             {
-                return new IConstraint[0];
+                return description;
             }
             var tokens = value.Split('|');
-            var rst = new IConstraint[tokens.Length];
-            for (var i = 0; i < tokens.Length; i++)
+            foreach (var token in tokens)
             {
-                var constraint = ParseInternal(tokens[i]);
-                rst[i] = constraint ?? throw MakeConfigException.IllegalConstraint(tokens[i]);
+                ParseInternal(token, description);
             }
-            return rst;
+            return description;
         }
 
-        private static IConstraint ParseInternal(string value)
+        private static void ParseInternal(string value, ConstraintDescription description)
         {
             value = value.Trim();
-            var type = VirtualTypePool.Get(value);
-            if (type is CLRType clrType)
+            if (value == "#def")
             {
-                return new ImportTypeConstraint(clrType);
+                description.Def = true;
             }
-
-            return null;
         }
 
     }

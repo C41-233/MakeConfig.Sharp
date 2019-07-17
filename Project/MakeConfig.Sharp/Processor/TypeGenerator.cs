@@ -16,7 +16,13 @@ namespace MakeConfig.Processor
         private class SplitField
         {
             public readonly List<DeclaredMember> DeclaredMembers = new List<DeclaredMember>();
-            public ImportTypeConstraint ImportTypeConstraint;
+            public DefConstraint Constraint;
+
+            public class DefConstraint
+            {
+                public VirtualType Type;
+                public string Description;
+            }
         }
 
         private struct DeclaredMember
@@ -47,24 +53,43 @@ namespace MakeConfig.Processor
                     var fieldType = GetType(field, meta.Type);
 
                     var constraints = Constraint.Parse(meta.Constraint);
-                    if (field.Contains("."))
-                    {
-                        var importTypeConstraint = (ImportTypeConstraint)constraints.FirstOrDefault(c => c is ImportTypeConstraint);
 
-                        var tokens = field.Split(new[] {'.'}, 2);
-                        if (splitFields.TryGetValue(tokens[0], out var splitField))
+                    //split field def
+                    if (constraints.Def)
+                    {
+                        var defConstraint = new SplitField.DefConstraint();
+                        if (meta.Type != null)
                         {
-                            if (!Equals(splitField.ImportTypeConstraint, importTypeConstraint))
+                            var vt = VirtualTypePool.Get(meta.Type);
+                            defConstraint.Type = vt ?? throw MakeConfigException.TypeNotFound(meta.Type);
+                            defConstraint.Description = meta.Description;
+                        }
+
+                        if (splitFields.TryGetValue(field, out var splitField))
+                        {
+                            if (splitField.Constraint != null)
                             {
-                                throw MakeConfigException.ImportTypeConstraintNotMatch();
+                                throw MakeConfigException.RedundantSplitFieldDef(field);
                             }
+
+                            splitField.Constraint = defConstraint;
                         }
                         else
                         {
                             splitField = new SplitField
                             {
-                                ImportTypeConstraint = importTypeConstraint,
+                                Constraint = defConstraint,
                             };
+                            splitFields.Add(field, splitField);
+                        }
+                    }
+                    //split field
+                    else if (field.Contains("."))
+                    {
+                        var tokens = field.Split(new[] {'.'}, 2);
+                        if (!splitFields.TryGetValue(tokens[0], out var splitField))
+                        {
+                            splitField = new SplitField();
                             splitFields.Add(tokens[0], splitField);
                         }
 
@@ -74,8 +99,8 @@ namespace MakeConfig.Processor
                             Type = fieldType,
                             Description = meta.Description,
                         });
-                        importTypeConstraint?.CheckFieldReference(tokens[1], fieldType);
                     }
+                    //normal field
                     else
                     {
                         configType.AddField(fieldType, field, meta.Description);
@@ -87,20 +112,26 @@ namespace MakeConfig.Processor
                 }
             }
 
-            foreach (var field in splitFields)
+            foreach (var kv in splitFields)
             {
+                var fieldName = kv.Key;
+                var ctx = kv.Value;
+
+                VirtualType virtualType = null;
+                string description = null;
+
                 //import type
-                if (field.Value.ImportTypeConstraint != null)
+                if (ctx.Constraint != null)
                 {
-                    var clrType = field.Value.ImportTypeConstraint.Type;
-                    configType.AddField(clrType, field.Key, null);
+                    virtualType = ctx.Constraint.Type;
+                    description = ctx.Constraint.Description;
                 }
-                //self type
-                else
+
+                if (virtualType == null)
                 {
-                    var virtualType = CreateSplitType(field.Key, field.Value.DeclaredMembers);
-                    configType.AddField(virtualType, field.Key, null);
+                    virtualType = CreateSplitType(fieldName, ctx.DeclaredMembers);
                 }
+                configType.AddField(virtualType, fieldName, description);
             }
 
             using (var writer = new FileWriter($"{Config.OutputFolder}/{type}.cs"))

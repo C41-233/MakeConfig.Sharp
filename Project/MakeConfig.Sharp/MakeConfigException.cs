@@ -64,5 +64,10 @@ namespace MakeConfig
         {
             throw new MakeConfigException($"字段引用{field}类型错误，期望{expect}，实际{real}");
         }
+
+        public static MakeConfigException RedundantSplitFieldDef(string field)
+        {
+            throw new MakeConfigException($"拆分字段{field}存在重复的定义列");
+        }
     }
 }
