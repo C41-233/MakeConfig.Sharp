@@ -57,5 +57,10 @@ namespace MakeConfig.Utils
             self.EndBlock();
         }
 
+        public static bool IsNullOrEmpty(this string self)
+        {
+            return string.IsNullOrWhiteSpace(self);
+        }
+
     }
 }

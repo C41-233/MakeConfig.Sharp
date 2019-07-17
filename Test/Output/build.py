@@ -14,7 +14,7 @@ for path in search_path:
 		csc_path = path
 		break
 
-option = r' /nostdlib /noconfig /warnaserror /r:C:\Windows\Microsoft.NET\Framework\v2.0.50727\mscorlib.dll /r:C:\Windows\Microsoft.NET\Framework\v2.0.50727\System.dll /r:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll" /nologo /debug- /o /target:library /out:bin/ConfigData.dll /langversion:7.2 AutoGen/*.cs'
+option = r' /nostdlib /noconfig /warnaserror /r:C:\Windows\Microsoft.NET\Framework\v2.0.50727\mscorlib.dll /r:C:\Windows\Microsoft.NET\Framework\v2.0.50727\System.dll /r:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll" /r:../BaseType/bin/BaseType.dll /nologo /debug- /o /target:library /out:bin/ConfigData.dll /langversion:7.2 AutoGen/*.cs'
 
 cmd = '"' + csc_path + '"' + option
 

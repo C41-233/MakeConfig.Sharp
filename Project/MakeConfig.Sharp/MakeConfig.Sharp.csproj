@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="InnerException.cs" />
     <Compile Include="Output\FileWriter.cs" />
     <Compile Include="Output\IOutputWriter.cs" />
     <Compile Include="Processor\Constraints\Constraint.cs" />

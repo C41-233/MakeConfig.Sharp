@@ -80,6 +80,11 @@ namespace MakeConfig.Processor.Types
                 innerTypes.Add(customType);
             }
         }
+
+        public override void CheckImportField(string memberName, VirtualType memberType)
+        {
+            throw new InnerException();
+        }
     }
 
     internal sealed class CustomEnumType : CustomType

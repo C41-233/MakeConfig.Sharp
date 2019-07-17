@@ -27,6 +27,7 @@ namespace MakeConfig.Processor
 
         private struct DeclaredMember
         {
+            public string RawText;
             public string Name;
             public VirtualType Type;
             public string Description;
@@ -50,15 +51,13 @@ namespace MakeConfig.Processor
                 var field = meta.Name.Trim();
                 try
                 {
-                    var fieldType = GetType(field, meta.Type);
-
                     var constraints = Constraint.Parse(meta.Constraint);
 
                     //split field def
                     if (constraints.Def)
                     {
                         var defConstraint = new SplitField.DefConstraint();
-                        if (meta.Type != null)
+                        if (!meta.Type.IsNullOrEmpty())
                         {
                             var vt = VirtualTypePool.Get(meta.Type);
                             defConstraint.Type = vt ?? throw MakeConfigException.TypeNotFound(meta.Type);
@@ -83,27 +82,33 @@ namespace MakeConfig.Processor
                             splitFields.Add(field, splitField);
                         }
                     }
-                    //split field
-                    else if (field.Contains("."))
-                    {
-                        var tokens = field.Split(new[] {'.'}, 2);
-                        if (!splitFields.TryGetValue(tokens[0], out var splitField))
-                        {
-                            splitField = new SplitField();
-                            splitFields.Add(tokens[0], splitField);
-                        }
-
-                        splitField.DeclaredMembers.Add(new DeclaredMember
-                        {
-                            Name = tokens[1],
-                            Type = fieldType,
-                            Description = meta.Description,
-                        });
-                    }
-                    //normal field
                     else
                     {
-                        configType.AddField(fieldType, field, meta.Description);
+                        var fieldType = GetType(field, meta.Type);
+
+                        //split field
+                        if (field.Contains("."))
+                        {
+                            var tokens = field.Split(new[] { '.' }, 2);
+                            if (!splitFields.TryGetValue(tokens[0], out var splitField))
+                            {
+                                splitField = new SplitField();
+                                splitFields.Add(tokens[0], splitField);
+                            }
+
+                            splitField.DeclaredMembers.Add(new DeclaredMember
+                            {
+                                RawText = field,
+                                Name = tokens[1],
+                                Type = fieldType,
+                                Description = meta.Description,
+                            });
+                        }
+                        //normal field
+                        else
+                        {
+                            configType.AddField(fieldType, field, meta.Description);
+                        }
                     }
                 }
                 catch (MakeConfigException e)
@@ -125,6 +130,22 @@ namespace MakeConfig.Processor
                 {
                     virtualType = ctx.Constraint.Type;
                     description = ctx.Constraint.Description;
+
+                    if (virtualType != null)
+                    {
+                        //check consist
+                        foreach (var member in ctx.DeclaredMembers)
+                        {
+                            try
+                            {
+                                virtualType.CheckImportField(member.Name, member.Type);
+                            }
+                            catch (MakeConfigException e)
+                            {
+                                throw new MakeConfigException($"在文件{table.File.GetAbsolutePath()}中解析字段{member.RawText}失败：{e.Message}");
+                            }
+                        }
+                    }
                 }
 
                 if (virtualType == null)

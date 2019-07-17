@@ -47,7 +47,7 @@ namespace MakeConfig.Processor
 
         private static IEnumerable<FileInfo> WalkAllExcelFiles(string inputFolder)
         {
-            return WalkAllFiles(inputFolder).Where(file => file.Name.EndsWith(Constant.Suffix) && !file.Name.StartsWith("~$"));
+            return WalkAllFiles(inputFolder).Where(file => file.Name.EndsWith(Constant.Suffix) && !file.Name.StartsWith("~"));
         }
 
         private static IEnumerable<FileInfo> WalkAllFiles(string inputFolder)

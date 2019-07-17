@@ -6,6 +6,11 @@
 
         public abstract string Name { get; }
 
+        //检查指定字段是否符合导入类型
+        public virtual void CheckImportField(string memberName, VirtualType memberType)
+        {
+            throw new InnerException();
+        }
     }
 
     internal sealed class ArrayType : VirtualType
@@ -19,6 +24,7 @@
         }
 
         public override string Name => baseType.Name + "[]";
+
     }
 }
 
