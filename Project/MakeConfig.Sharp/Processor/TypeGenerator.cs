@@ -61,8 +61,8 @@ namespace MakeConfig.Processor
                         {
                             var vt = VirtualTypePool.Get(meta.Type);
                             defConstraint.Type = vt ?? throw MakeConfigException.TypeNotFound(meta.Type);
-                            defConstraint.Description = meta.Description;
                         }
+                        defConstraint.Description = meta.Description;
 
                         if (splitFields.TryGetValue(field, out var splitField))
                         {
