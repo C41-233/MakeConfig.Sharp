@@ -9,14 +9,11 @@ namespace MakeConfig.Excel
     public class VirtualDataTable
     {
 
-        public string SimpleName { get; }
-        public string ConfigName { get; }
-
         private readonly ExcelWorksheet sheet;
 
-        public int ColumnCount => sheet.Dimension.Columns;
-
         public FileInfo File { get; }
+        public string TableName { get; }
+        public int ColumnCount => sheet.Dimension.Columns;
 
         public ColumnMeta GetColumnMeta(int column)
         {
@@ -47,7 +44,7 @@ namespace MakeConfig.Excel
             get
             {
                 var count = ColumnCount;
-                for (var i=0; i<count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     yield return GetColumnMeta(i);
                 }
@@ -62,15 +59,14 @@ namespace MakeConfig.Excel
             var configName = file.Name.RemoveLast(Config.Suffix);
             if (file.Name.Contains("_"))
             {
-                configName = file.Name.Split(new []{'_'}, 2)[0];
+                configName = file.Name.Split(new[] { '_' }, 2)[0];
             }
             if (sheet.Name != configName)
             {
                 configName += sheet.Name;
             }
 
-            SimpleName = configName;
-            ConfigName = configName + "Config";
+            TableName = configName;
         }
 
     }
