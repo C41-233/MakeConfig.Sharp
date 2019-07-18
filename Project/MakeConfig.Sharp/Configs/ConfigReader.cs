@@ -1,5 +1,4 @@
-﻿using System;
-using System.Xml;
+﻿using System.Xml;
 using MakeConfig.Utils;
 
 namespace MakeConfig.Configs

@@ -13,6 +13,7 @@ namespace MakeConfig.Template
 
         public static void Copy(string name, IOutputWriter writer)
         {
+            name += ".template";
             var thisExe = Assembly.GetExecutingAssembly();
             var stream = thisExe.GetManifestResourceStream(typeof(TemplateFile), name);
             if (stream == null)

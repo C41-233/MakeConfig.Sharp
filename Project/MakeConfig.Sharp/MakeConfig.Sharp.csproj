@@ -73,7 +73,7 @@
     <Compile Include="Processor\TypeGenerator.cs" />
     <Compile Include="Processor\ConfigType.cs" />
     <Compile Include="Processor\Types\VirtualType.cs" />
-    <Compile Include="Processor\Types\VirtualTypePool.cs" />
+    <Compile Include="Processor\Types\ImportTypePool.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Template\TemplateFile.cs" />
@@ -91,7 +91,7 @@
     <Analyzer Include="..\packages\CommandLine.Net.1.5.3\analyzers\dotnet\cs\CommandLine.Analyzer.dll" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\ConfigBase.txt" />
+    <EmbeddedResource Include="Template\ConfigBase.cs.template" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

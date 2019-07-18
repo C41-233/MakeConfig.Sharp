@@ -38,13 +38,13 @@ namespace MakeConfig.Processor
         {
             AssertIdMeta(table, out var idMeta);
 
-            var configType = new ConfigType(table.ConfigName);
+            var configType = new ConfigType(table.TableName + Config.GenerateClassSuffix);
 
             configType.SetIdField(GetType(idMeta.Name, idMeta.Type), idMeta.Description);
 
             var splitFields = new Dictionary<string, SplitField>();
 
-            var tableConfig = TableConfigs.Get(table.SimpleName);
+            var tableConfig = TableConfigs.Get(table.TableName);
 
             if (tableConfig != null)
             {
@@ -56,7 +56,7 @@ namespace MakeConfig.Processor
                     };
                     if (typeDefine.ImportType != null)
                     {
-                        splitField.Type = VirtualTypePool.Get(typeDefine.ImportType);
+                        splitField.Type = ImportTypePool.Get(typeDefine.ImportType);
                     }
                     splitFields.Add(typeDefine.FieldName, splitField);
                 }
@@ -135,7 +135,7 @@ namespace MakeConfig.Processor
                 configType.AddField(virtualType, fieldName, ctx.Description);
             }
 
-            using (var writer = new FileWriter($"{Config.OutputFolder}/{table.ConfigName}.cs"))
+            using (var writer = new FileWriter($"{Config.OutputFolder}/{table.TableName + Config.GenerateClassSuffix}.cs"))
             {
                 configType.Write(writer);
             }
@@ -156,7 +156,7 @@ namespace MakeConfig.Processor
                 }
             }
             {
-                var vt = VirtualTypePool.Get(type);
+                var vt = ImportTypePool.Get(type);
 
                 if (vt == null)
                 {

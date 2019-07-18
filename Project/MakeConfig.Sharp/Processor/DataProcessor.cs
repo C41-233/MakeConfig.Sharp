@@ -18,31 +18,34 @@ namespace MakeConfig.Processor
 
         public static void Run()
         {
+            //初始化所有配置文件
             ConfigReader.Read();
 
             if (Config.BaseTypeDll != null)
             {
                 var assembly = Assembly.ReflectionOnlyLoadFrom(Config.BaseTypeDll);
-                VirtualTypePool.Load(assembly);
+
+               //加载所有导入类型
+                ImportTypePool.Load(assembly);
             }
 
-            var configNameToTables = new Dictionary<string, List<VirtualDataTable>>();
+            var tableNameToTables = new Dictionary<string, List<VirtualDataTable>>();
             foreach (var file in WalkAllExcelFiles(Config.InputFolder))
             {
                 var package = LoadExcelPackage(file.ToString());
                 foreach (var sheet in package.Workbook.Worksheets)
                 {
                     var table = new VirtualDataTable(file, sheet);
-                    configNameToTables.GetValueOrCreate(table.ConfigName).Add(table);
+                    tableNameToTables.GetValueOrCreate(table.TableName).Add(table);
                 }
             }
 
             using (var writer = new FileWriter($"{Config.OutputFolder}/ConfigBase.cs"))
             {
-                TemplateFile.Copy("ConfigBase.txt", writer);
+                TemplateFile.Copy("ConfigBase.cs", writer);
             }
 
-            foreach (var kv in configNameToTables)
+            foreach (var kv in tableNameToTables)
             {
                 TypeGenerator.GenerateType(kv.Value);
             }

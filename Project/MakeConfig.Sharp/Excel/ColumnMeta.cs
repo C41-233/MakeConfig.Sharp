@@ -1,5 +1,6 @@
 ﻿namespace MakeConfig.Excel
 {
+
     public struct ColumnMeta
     {
         public string Description;
@@ -40,4 +41,5 @@
             return true;
         }
     }
+
 }

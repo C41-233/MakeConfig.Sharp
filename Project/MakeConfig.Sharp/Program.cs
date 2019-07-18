@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
-using MakeConfig.Configs;
 using MakeConfig.Processor;
-using OfficeOpenXml;
 
 namespace MakeConfig
 {
@@ -13,13 +10,19 @@ namespace MakeConfig
         {
             try
             {
-                DataProcessor.Run();
+                Main0(args);
             }
             catch (MakeConfigException e)
             {
                 Console.Error.WriteLine($"Error: {e.Message}");
                 Environment.Exit(-1);
             }
+        }
+
+        private static void Main0(string[] args)
+        {
+            //读取命令行参数初始化Config
+            DataProcessor.Run();
         }
 
     }

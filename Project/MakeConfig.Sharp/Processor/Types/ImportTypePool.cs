@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace MakeConfig.Processor.Types
 {
-    internal static class VirtualTypePool
+    internal static class ImportTypePool
     {
 
         private static readonly Dictionary<string, VirtualType> Data = new Dictionary<string, VirtualType>();
