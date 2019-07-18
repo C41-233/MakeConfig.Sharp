@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using MakeConfig.Configs;
 using MakeConfig.Excel;
 using MakeConfig.Output;
 using MakeConfig.Processor.Types;
@@ -17,6 +18,14 @@ namespace MakeConfig.Processor
 
         public static void Run()
         {
+            ConfigReader.Read();
+
+            if (Config.BaseTypeDll != null)
+            {
+                var assembly = Assembly.ReflectionOnlyLoadFrom(Config.BaseTypeDll);
+                VirtualTypePool.Load(assembly);
+            }
+
             var configNameToTables = new Dictionary<string, List<VirtualDataTable>>();
             foreach (var file in WalkAllExcelFiles(Config.InputFolder))
             {
@@ -33,21 +42,19 @@ namespace MakeConfig.Processor
                 TemplateFile.Copy("ConfigBase.txt", writer);
             }
 
-            if (Config.BaseTypeDll != null)
-            {
-                var assembly = Assembly.ReflectionOnlyLoadFrom(Config.BaseTypeDll);
-                VirtualTypePool.Load(assembly);
-            }
-
             foreach (var kv in configNameToTables)
             {
-                TypeGenerator.GenerateType(kv.Key, kv.Value);
+                TypeGenerator.GenerateType(kv.Value);
             }
         }
 
         private static IEnumerable<FileInfo> WalkAllExcelFiles(string inputFolder)
         {
-            return WalkAllFiles(inputFolder).Where(file => file.Name.EndsWith(Constant.Suffix) && !file.Name.StartsWith("~"));
+            return WalkAllFiles(inputFolder).Where(file => 
+                file.Name.EndsWith(Config.Suffix)
+                && !file.Name.StartsWith("~")
+                && !Config.IgnoreFiles.Contains(file.Name)
+            );
         }
 
         private static IEnumerable<FileInfo> WalkAllFiles(string inputFolder)

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MakeConfig.Configs;
 using MakeConfig.Excel;
 using MakeConfig.Output;
-using MakeConfig.Processor.Constraints;
 using MakeConfig.Processor.Types;
 using MakeConfig.Utils;
 
@@ -16,13 +16,8 @@ namespace MakeConfig.Processor
         private class SplitField
         {
             public readonly List<DeclaredMember> DeclaredMembers = new List<DeclaredMember>();
-            public DefConstraint Constraint;
-
-            public class DefConstraint
-            {
-                public VirtualType Type;
-                public string Description;
-            }
+            public string Description;
+            public VirtualType Type;
         }
 
         private struct DeclaredMember
@@ -33,11 +28,14 @@ namespace MakeConfig.Processor
             public string Description;
         }
 
-        public static void GenerateType(string type, List<VirtualDataTable> tables)
+        public static void GenerateType(List<VirtualDataTable> tables)
         {
             AssertSameMetas(tables);
+            GenerateType(tables[0]);
+        }
 
-            var table = tables[0];
+        private static void GenerateType(VirtualDataTable table)
+        {
             AssertIdMeta(table, out var idMeta);
 
             var configType = new ConfigType(table.ConfigName);
@@ -46,69 +44,53 @@ namespace MakeConfig.Processor
 
             var splitFields = new Dictionary<string, SplitField>();
 
+            var tableConfig = TableConfigs.Get(table.SimpleName);
+
+            if (tableConfig != null)
+            {
+                foreach (var typeDefine in tableConfig.Types)
+                {
+                    var splitField = new SplitField
+                    {
+                        Description = typeDefine.Comment
+                    };
+                    if (typeDefine.ImportType != null)
+                    {
+                        splitField.Type = VirtualTypePool.Get(typeDefine.ImportType);
+                    }
+                    splitFields.Add(typeDefine.FieldName, splitField);
+                }
+            }
+
             foreach (var meta in table.ColumnMetas.Skip(1))
             {
                 var field = meta.Name.Trim();
                 try
                 {
-                    var constraints = Constraint.Parse(meta.Constraint);
+                    var fieldType = GetType(field, meta.Type);
 
-                    //split field def
-                    if (constraints.Def)
+                    //split field
+                    if (field.Contains("."))
                     {
-                        var defConstraint = new SplitField.DefConstraint();
-                        if (!meta.Type.IsNullOrEmpty())
+                        var tokens = field.Split(new[] { '.' }, 2);
+                        if (!splitFields.TryGetValue(tokens[0], out var splitField))
                         {
-                            var vt = VirtualTypePool.Get(meta.Type);
-                            defConstraint.Type = vt ?? throw MakeConfigException.TypeNotFound(meta.Type);
+                            splitField = new SplitField();
+                            splitFields.Add(tokens[0], splitField);
                         }
-                        defConstraint.Description = meta.Description;
 
-                        if (splitFields.TryGetValue(field, out var splitField))
+                        splitField.DeclaredMembers.Add(new DeclaredMember
                         {
-                            if (splitField.Constraint != null)
-                            {
-                                throw MakeConfigException.RedundantSplitFieldDef(field);
-                            }
-
-                            splitField.Constraint = defConstraint;
-                        }
-                        else
-                        {
-                            splitField = new SplitField
-                            {
-                                Constraint = defConstraint,
-                            };
-                            splitFields.Add(field, splitField);
-                        }
+                            RawText = field,
+                            Name = tokens[1],
+                            Type = fieldType,
+                            Description = meta.Description,
+                        });
                     }
+                    //normal field
                     else
                     {
-                        var fieldType = GetType(field, meta.Type);
-
-                        //split field
-                        if (field.Contains("."))
-                        {
-                            var tokens = field.Split(new[] { '.' }, 2);
-                            if (!splitFields.TryGetValue(tokens[0], out var splitField))
-                            {
-                                splitField = new SplitField();
-                                splitFields.Add(tokens[0], splitField);
-                            }
-
-                            splitField.DeclaredMembers.Add(new DeclaredMember
-                            {
-                                RawText = field,
-                                Name = tokens[1],
-                                Type = fieldType,
-                                Description = meta.Description,
-                            });
-                        }
-                        //normal field
-                        else
-                        {
-                            configType.AddField(fieldType, field, meta.Description);
-                        }
+                        configType.AddField(fieldType, field, meta.Description);
                     }
                 }
                 catch (MakeConfigException e)
@@ -123,13 +105,11 @@ namespace MakeConfig.Processor
                 var ctx = kv.Value;
 
                 VirtualType virtualType = null;
-                string description = null;
 
                 //import type
-                if (ctx.Constraint != null)
+                if (ctx.Type != null)
                 {
-                    virtualType = ctx.Constraint.Type;
-                    description = ctx.Constraint.Description;
+                    virtualType = ctx.Type;
 
                     if (virtualType != null)
                     {
@@ -152,10 +132,10 @@ namespace MakeConfig.Processor
                 {
                     virtualType = CreateSplitType(fieldName, ctx.DeclaredMembers);
                 }
-                configType.AddField(virtualType, fieldName, description);
+                configType.AddField(virtualType, fieldName, ctx.Description);
             }
 
-            using (var writer = new FileWriter($"{Config.OutputFolder}/{type}.cs"))
+            using (var writer = new FileWriter($"{Config.OutputFolder}/{table.ConfigName}.cs"))
             {
                 configType.Write(writer);
             }

@@ -56,13 +56,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config.cs" />
+    <Compile Include="Configs\Config.cs" />
+    <Compile Include="Configs\TableConfigs.cs" />
+    <Compile Include="Configs\ConfigReader.cs" />
     <Compile Include="InnerException.cs" />
     <Compile Include="Output\FileWriter.cs" />
     <Compile Include="Output\IOutputWriter.cs" />
     <Compile Include="Processor\Constraints\Constraint.cs" />
     <Compile Include="Excel\ColumnMeta.cs" />
-    <Compile Include="Excel\Constant.cs" />
     <Compile Include="MakeConfigException.cs" />
     <Compile Include="Output\StringWriter.cs" />
     <Compile Include="Processor\Types\CLRType.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="Utils\CollectionUtils.cs" />
     <Compile Include="Utils\FileUtils.cs" />
     <Compile Include="Utils\StringUtils.cs" />
+    <Compile Include="Utils\XmlUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

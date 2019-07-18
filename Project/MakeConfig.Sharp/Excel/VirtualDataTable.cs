@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using MakeConfig.Configs;
 using MakeConfig.Utils;
 using OfficeOpenXml;
 
@@ -8,6 +9,7 @@ namespace MakeConfig.Excel
     public class VirtualDataTable
     {
 
+        public string SimpleName { get; }
         public string ConfigName { get; }
 
         private readonly ExcelWorksheet sheet;
@@ -57,7 +59,7 @@ namespace MakeConfig.Excel
             this.sheet = sheet;
             File = file;
 
-            var configName = file.Name.RemoveLast(Constant.Suffix);
+            var configName = file.Name.RemoveLast(Config.Suffix);
             if (file.Name.Contains("_"))
             {
                 configName = file.Name.Split(new []{'_'}, 2)[0];
@@ -67,6 +69,7 @@ namespace MakeConfig.Excel
                 configName += sheet.Name;
             }
 
+            SimpleName = configName;
             ConfigName = configName + "Config";
         }
 

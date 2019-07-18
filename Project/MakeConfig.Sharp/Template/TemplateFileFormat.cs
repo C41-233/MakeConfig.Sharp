@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using MakeConfig.Configs;
 
 namespace MakeConfig.Template
 {

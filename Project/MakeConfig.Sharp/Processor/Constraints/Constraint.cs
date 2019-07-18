@@ -1,11 +1,9 @@
-﻿using MakeConfig.Processor.Types;
-
+﻿
 namespace MakeConfig.Processor.Constraints
 {
 
     internal class ConstraintDescription
     {
-        public bool Def;
     }
 
     internal static class Constraint
@@ -30,10 +28,6 @@ namespace MakeConfig.Processor.Constraints
         private static void ParseInternal(string value, ConstraintDescription description)
         {
             value = value.Trim();
-            if (value == "#def")
-            {
-                description.Def = true;
-            }
         }
 
     }

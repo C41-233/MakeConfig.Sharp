@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MakeConfig.Configs;
 using MakeConfig.Output;
 using MakeConfig.Processor.Types;
 using MakeConfig.Utils;

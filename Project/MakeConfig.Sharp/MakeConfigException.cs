@@ -1,4 +1,5 @@
 ﻿using System;
+using MakeConfig.Configs;
 using MakeConfig.Excel;
 using MakeConfig.Processor.Constraints;
 using MakeConfig.Utils;
@@ -68,6 +69,11 @@ namespace MakeConfig
         public static MakeConfigException RedundantSplitFieldDef(string field)
         {
             throw new MakeConfigException($"拆分字段{field}存在重复的定义列");
+        }
+
+        public static MakeConfigException ConfigTableNameMiss()
+        {
+            throw new MakeConfigException("配置文件table缺少name列");
         }
     }
 }
