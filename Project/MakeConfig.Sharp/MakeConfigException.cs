@@ -56,14 +56,14 @@ namespace MakeConfig
             throw new MakeConfigException($"拆分字段的导入类型约束不一致");
         }
 
-        public static MakeConfigException FieldReferenceNotExist(string field)
+        public static MakeConfigException FieldReferenceNotExist(Type type, string field)
         {
-            throw new MakeConfigException($"不存在的字段引用{field}");
+            throw new MakeConfigException($"在类型{type.FullName}中不存在的字段引用{field}");
         }
 
-        public static MakeConfigException FieldReferenceTypeNotMatch(string field, string expect, string real)
+        public static MakeConfigException FieldReferenceTypeNotMatch(string expect, string real)
         {
-            throw new MakeConfigException($"字段引用{field}类型错误，期望{expect}，实际{real}");
+            throw new MakeConfigException($"类型不一致，期望{expect}，实际{real}");
         }
 
         public static MakeConfigException RedundantSplitFieldDef(string field)

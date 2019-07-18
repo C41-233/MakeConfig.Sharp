@@ -33,13 +33,13 @@ namespace MakeConfig.Configs
 
         }
 
-        private readonly List<DefineType> types = new List<DefineType>();
+        private readonly List<DefineType> defineTypes = new List<DefineType>();
 
-        public IEnumerable<DefineType> Types => types;
+        public IEnumerable<DefineType> DefineTypes => defineTypes;
 
         public void AddDefineType(DefineType type)
         {
-            types.Add(type);
+            defineTypes.Add(type);
         }
 
     }

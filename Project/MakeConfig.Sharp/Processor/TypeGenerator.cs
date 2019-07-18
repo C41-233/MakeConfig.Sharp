@@ -23,7 +23,6 @@ namespace MakeConfig.Processor
 
         private struct DeclaredMember
         {
-            public string RawText;
             public string Name;
             public VirtualType Type;
             public string Description;
@@ -37,7 +36,7 @@ namespace MakeConfig.Processor
 
         private static void GenerateType(VirtualDataTable table)
         {
-            AssertIdMeta(table, out var idMeta);
+            CheckAndGetIdMeta(table, out var idMeta);
 
             var configType = new ConfigType(table.TableName + Config.GenerateClassSuffix);
 
@@ -47,9 +46,10 @@ namespace MakeConfig.Processor
 
             var tableConfig = TableConfigs.Get(table.TableName);
 
+            //先填充xml定义的列
             if (tableConfig != null)
             {
-                foreach (var typeDefine in tableConfig.Types)
+                foreach (var typeDefine in tableConfig.DefineTypes)
                 {
                     var splitField = new SplitField
                     {
@@ -91,34 +91,7 @@ namespace MakeConfig.Processor
                 var fieldName = kv.Key;
                 var ctx = kv.Value;
 
-                VirtualType virtualType = null;
-
-                //import type
-                if (ctx.Type != null)
-                {
-                    virtualType = ctx.Type;
-
-                    if (virtualType != null)
-                    {
-                        //check consist
-                        foreach (var member in ctx.DeclaredMembers)
-                        {
-                            try
-                            {
-                                virtualType.CheckImportField(member.Name, member.Type);
-                            }
-                            catch (MakeConfigException e)
-                            {
-                                throw new MakeConfigException($"在文件{table.File.GetAbsolutePath()}中解析字段{member.RawText}失败：{e.Message}");
-                            }
-                        }
-                    }
-                }
-
-                if (virtualType == null)
-                {
-                    virtualType = CreateSplitType(fieldName, ctx);
-                }
+                var virtualType = ctx.Type ?? CreateSplitType(fieldName, ctx);
 
                 configType.AddField(virtualType, fieldName, ctx.Description);
             }
@@ -138,6 +111,9 @@ namespace MakeConfig.Processor
                 parent.Add(name, splitField);
             }
 
+            //check consist
+            splitField.Type?.CheckImportField(body, type);
+
             if (body.Contains("."))
             {
                 ParseSplitField(splitField.ChildFields, body, type, description);
@@ -146,7 +122,6 @@ namespace MakeConfig.Processor
             {
                 splitField.DeclaredMembers.Add(new DeclaredMember
                 {
-                    RawText = fieldPartName,
                     Name = body,
                     Type = type,
                     Description = description,
@@ -292,7 +267,7 @@ namespace MakeConfig.Processor
             return type;
         }
 
-        private static void AssertIdMeta(VirtualDataTable table, out ColumnMeta meta)
+        private static void CheckAndGetIdMeta(VirtualDataTable table, out ColumnMeta meta)
         {
             if (!table.TryGetColumnMeta(0, out meta))
             {

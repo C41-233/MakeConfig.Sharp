@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MakeConfig.Configs;
 using MakeConfig.Output;
 using MakeConfig.Processor.Types;
@@ -36,6 +37,10 @@ namespace MakeConfig.Processor
 
         public void AddField(VirtualType type, string name, string description)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
             fields.Add(NewField(type, name, description));   
         }
 

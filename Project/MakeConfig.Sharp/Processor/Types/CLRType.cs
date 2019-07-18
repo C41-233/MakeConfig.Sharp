@@ -26,7 +26,7 @@ namespace MakeConfig.Processor.Types
             var field = Type.GetField(memberName);
             if (field == null)
             {
-                throw MakeConfigException.FieldReferenceNotExist(memberName);
+                throw MakeConfigException.FieldReferenceNotExist(Type, memberName);
             }
 
             if (!(memberType is CLRType clrType))
@@ -36,7 +36,7 @@ namespace MakeConfig.Processor.Types
 
             if (field.FieldType != clrType.Type)
             {
-                throw MakeConfigException.FieldReferenceTypeNotMatch(memberName, field.FieldType.FullName, clrType.Type.FullName);
+                throw MakeConfigException.FieldReferenceTypeNotMatch(field.FieldType.FullName, clrType.Type.FullName);
             }
         }
     }
