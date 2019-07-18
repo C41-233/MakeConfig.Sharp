@@ -91,7 +91,7 @@
     <Analyzer Include="..\packages\CommandLine.Net.1.5.3\analyzers\dotnet\cs\CommandLine.Analyzer.dll" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\ConfigBase.cs.template" />
+    <EmbeddedResource Include="Template\ConfigBase.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
