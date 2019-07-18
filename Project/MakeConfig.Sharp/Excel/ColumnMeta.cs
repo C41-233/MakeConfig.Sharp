@@ -5,21 +5,21 @@
     {
         public string Description;
         public string DefaultValue;
-        public string Name;
+        public string FieldFullName;
         public string Constraint;
-        public string Type;
+        public string TypeSpec;
         public string Tag;
 
         public override string ToString()
         {
-            return $"{Description}\t{DefaultValue}\t{Name}\t{Constraint}\t{Type}\t{Tag}";
+            return $"{Description}\t{DefaultValue}\t{FieldFullName}\t{Constraint}\t{TypeSpec}\t{Tag}";
         }
 
         public static bool Equals(ColumnMeta left, ColumnMeta right, out string column)
         {
-            if (left.Name != right.Name)
+            if (left.FieldFullName != right.FieldFullName)
             {
-                column = nameof(Name);
+                column = nameof(FieldFullName);
                 return false;
             }
             if (left.Constraint != right.Constraint)
@@ -27,9 +27,9 @@
                 column = nameof(Constraint);
                 return false;
             }
-            if (left.Type != right.Type)
+            if (left.TypeSpec != right.TypeSpec)
             {
-                column = nameof(Type);
+                column = nameof(TypeSpec);
                 return false;
             }
             if (left.Tag != right.Tag)

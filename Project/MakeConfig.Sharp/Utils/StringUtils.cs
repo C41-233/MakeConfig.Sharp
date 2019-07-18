@@ -50,6 +50,21 @@ namespace MakeConfig.Utils
             return rst;
         }
 
+        public static bool Split2By(this string self, char ch, out string left, out string right)
+        {
+            var tokens = self.Split(new[] {ch}, 2);
+            if (tokens.Length == 2)
+            {
+                left = tokens[0];
+                right = tokens[1];
+                return true;
+            }
+
+            left = null;
+            right = null;
+            return false;
+        }
+
         public static void Block(this IOutputWriter self, Action action)
         {
             self.BeginBlock();

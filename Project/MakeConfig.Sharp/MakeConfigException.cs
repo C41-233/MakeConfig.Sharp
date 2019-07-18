@@ -36,9 +36,9 @@ namespace MakeConfig
             throw new MakeConfigException($"表结构缺少Id列：{table.File.GetAbsolutePath()}，Id列的名称必须设为{Config.IdName}，约束指定#id");
         }
 
-        public static MakeConfigException FormatError(string field, string type)
+        public static MakeConfigException TypeFormatError(string typeSpec)
         {
-            throw new MakeConfigException($"字段{field}：{type}");
+            throw new MakeConfigException($"类型解析失败：{typeSpec}");
         }
 
         public static MakeConfigException TypeNotFound(string type)

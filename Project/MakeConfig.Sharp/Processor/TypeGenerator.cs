@@ -6,7 +6,6 @@ using MakeConfig.Excel;
 using MakeConfig.Output;
 using MakeConfig.Processor.Types;
 using MakeConfig.Utils;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 
 namespace MakeConfig.Processor
 {
@@ -16,10 +15,10 @@ namespace MakeConfig.Processor
 
         private class SplitField
         {
+            public VirtualType Type;
             public readonly List<DeclaredMember> DeclaredMembers = new List<DeclaredMember>();
             public string Description;
-            public VirtualType Type;
-            public readonly List<SplitField> ChildFields = new List<SplitField>();
+            public readonly Dictionary<string, SplitField> ChildFields = new Dictionary<string, SplitField>();
         }
 
         private struct DeclaredMember
@@ -42,9 +41,9 @@ namespace MakeConfig.Processor
 
             var configType = new ConfigType(table.TableName + Config.GenerateClassSuffix);
 
-            configType.SetIdField(GetType(idMeta.Name, idMeta.Type), idMeta.Description);
+            configType.SetIdField(GetType(idMeta.FieldFullName, idMeta.TypeSpec), idMeta.Description);
 
-            var splitFields = new Dictionary<string, SplitField>();
+            var rootSplitFields = new Dictionary<string, SplitField>();
 
             var tableConfig = TableConfigs.Get(table.TableName);
 
@@ -54,41 +53,40 @@ namespace MakeConfig.Processor
                 {
                     var splitField = new SplitField
                     {
-                        Description = typeDefine.Comment
+                        Description = typeDefine.Description,
                     };
                     if (typeDefine.ImportType != null)
                     {
                         splitField.Type = ImportTypePool.Get(typeDefine.ImportType);
                     }
-                    splitFields.Add(typeDefine.FieldName, splitField);
+                    rootSplitFields.Add(typeDefine.FieldName, splitField);
                 }
             }
 
             foreach (var meta in table.ColumnMetas.Skip(1))
             {
-                var field = meta.Name.Trim();
+                var fieldFullName = meta.FieldFullName.Trim();
                 try
                 {
-                    var fieldType = GetType(field, meta.Type);
-
+                    var fieldType = GetType(fieldFullName.Replace(".", ""), meta.TypeSpec);
                     //split field
-                    if (field.Contains("."))
+                    if (fieldFullName.Contains("."))
                     {
-                        ParseSplitField(field, fieldType, meta.Description);
+                        ParseSplitField(rootSplitFields, fieldFullName, fieldType, meta.Description);
                     }
                     //normal field
                     else
                     {
-                        configType.AddField(fieldType, field, meta.Description);
+                        configType.AddField(fieldType, fieldFullName, meta.Description);
                     }
                 }
                 catch (MakeConfigException e)
                 {
-                    throw new MakeConfigException($"在文件{table.File.GetAbsolutePath()}中解析字段{field}时遇到错误：{e.Message}");
+                    throw new MakeConfigException($"在文件{table.File.GetAbsolutePath()}中解析字段{fieldFullName}时遇到错误：{e.Message}");
                 }
             }
 
-            foreach (var kv in splitFields)
+            foreach (var kv in rootSplitFields)
             {
                 var fieldName = kv.Key;
                 var ctx = kv.Value;
@@ -119,7 +117,7 @@ namespace MakeConfig.Processor
 
                 if (virtualType == null)
                 {
-                    virtualType = CreateSplitType(fieldName, ctx.DeclaredMembers);
+                    virtualType = CreateSplitType(fieldName, ctx);
                 }
 
                 configType.AddField(virtualType, fieldName, ctx.Description);
@@ -129,84 +127,77 @@ namespace MakeConfig.Processor
             {
                 configType.Write(writer);
             }
+        }
 
-            void ParseSplitField(string field, VirtualType fieldType, string description)
+        private static void ParseSplitField(Dictionary<string, SplitField> parent, string fieldPartName, VirtualType type, string description)
+        {
+            fieldPartName.Split2By('.', out var name, out var body);
+            if (!parent.TryGetValue(name, out var splitField))
             {
-                var tokens = field.Split(new[] { '.' }, 2);
-                if (!splitFields.TryGetValue(tokens[0], out var splitField))
-                {
-                    splitField = new SplitField();
-                    splitFields.Add(tokens[0], splitField);
-                }
-
-                if (tokens[1].Contains("."))
-                {
-
-                }
-                else
-                {
-                    splitField.DeclaredMembers.Add(new DeclaredMember
-                    {
-                        RawText = field,
-                        Name = tokens[1],
-                        Type = fieldType,
-                        Description = description,
-                    });
-                }
-
+                splitField = new SplitField();
+                parent.Add(name, splitField);
             }
 
+            if (body.Contains("."))
+            {
+                ParseSplitField(splitField.ChildFields, body, type, description);
+            }
+            else
+            {
+                splitField.DeclaredMembers.Add(new DeclaredMember
+                {
+                    RawText = fieldPartName,
+                    Name = body,
+                    Type = type,
+                    Description = description,
+                });
+            }
         }
 
-        private static SplitField ParseChildSplitField()
-        {
-
-        }
-
-        private static VirtualType GetType(string field, string type)
+        private static VirtualType GetType(string fullName, string typeSpec)
         {
             {
-                if (TryCreateEnumType(field, type, out var vt))
+                if (TryCreateEnumType(fullName, typeSpec, out var vt))
                 {
                     return vt;
                 }
             }
             {
-                if (TryCreateStructType(field, type, out var vt))
+                if (TryCreateStructType(fullName, typeSpec, out var vt))
                 {
                     return vt;
                 }
             }
             {
-                var vt = ImportTypePool.Get(type);
+                var vt = ImportTypePool.Get(typeSpec);
 
                 if (vt == null)
                 {
-                    throw MakeConfigException.TypeNotFound(type);
+                    throw MakeConfigException.TypeNotFound(typeSpec);
                 }
 
                 return vt;
             }
         }
 
-        private static bool TryCreateEnumType(string field, string type, out CustomEnumType vt)
+        private static bool TryCreateEnumType(string fullName, string typeSpec, out CustomEnumType vt)
         {
-            if (!type.StartsWith("enum"))
+            if (!typeSpec.StartsWith("enum"))
             {
                 vt = null;
                 return false;
             }
 
-            type = type.RemoveFirst("enum").Trim();
-            if (!type.StartsWith("{") || !type.EndsWith("}"))
+            typeSpec = typeSpec.RemoveFirst("enum").Trim();
+            if (!typeSpec.StartsWith("{") || !typeSpec.EndsWith("}"))
             {
-                throw MakeConfigException.FormatError(field, type);
+                throw MakeConfigException.TypeFormatError(typeSpec);
             }
 
-            type = type.RemoveBoth("{", "}");
+            typeSpec = typeSpec.RemoveBoth("{", "}");
 
-            vt = new CustomEnumType(field + "Type");
-            foreach (var token in type.Split(','))
+            vt = new CustomEnumType(fullName + "Enum");
+            foreach (var token in typeSpec.Split(','))
             {
                 if (token.Contains("="))
                 {
@@ -221,28 +212,28 @@ namespace MakeConfig.Processor
             return true;
         }
 
-        private static bool TryCreateStructType(string field, string type, out CustomStructType vt)
+        private static bool TryCreateStructType(string fieldFullName, string typeSpec, out CustomStructType vt)
         {
 
-            if (!type.StartsWith("struct"))
+            if (!typeSpec.StartsWith("struct"))
             {
                 vt = null;
                 return false;
             }
 
-            type = type.RemoveFirst("struct").Trim();
-            if (!type.StartsWith("{") || !type.EndsWith("}"))
+            typeSpec = typeSpec.RemoveFirst("struct").Trim();
+            if (!typeSpec.StartsWith("{") || !typeSpec.EndsWith("}"))
             {
-                throw MakeConfigException.FormatError(field, type);
+                throw MakeConfigException.TypeFormatError(typeSpec);
             }
 
-            type = type.RemoveBoth("{", "}");
+            typeSpec = typeSpec.RemoveBoth("{", "}");
 
             //pass for recursive type
             var tokens = new List<string>();
             var sb = new StringBuilder();
             var depth = 0;
-            foreach (var ch in type)
+            foreach (var ch in typeSpec)
             {
                 switch (ch)
                 {
@@ -270,26 +261,34 @@ namespace MakeConfig.Processor
                 tokens.Add(sb.ToString());
             }
 
-            vt = new CustomStructType(field + "Type", true);
+            vt = new CustomStructType(fieldFullName + "Type", true);
             foreach (var token in tokens)
             {
                 var whitespace = token.LastIndexOf(' ');
                 var splits = token.SplitAt(whitespace);
-                var fieldType = splits[0].Trim();
-                var fieldName = splits[1].Trim();
-                vt.AddField(fieldName, GetType(fieldName, fieldType), null);
+                var childTypeSpec = splits[0].Trim();
+                var childFieldName = splits[1].Trim();
+                vt.AddField(childFieldName, GetType(fieldFullName + childFieldName, childTypeSpec), null);
             }
 
             return true;
         }
 
-        private static VirtualType CreateSplitType(string fieldName, List<DeclaredMember> declaredMembers)
+        private static VirtualType CreateSplitType(string bodyName, SplitField splitField)
         {
-            var type = new CustomStructType(fieldName + "Type");
-            foreach (var member in declaredMembers)
+            var type = new CustomStructType(bodyName + "Type");
+            foreach (var member in splitField.DeclaredMembers)
             {
                 type.AddField(member.Name, member.Type, member.Description);
             }
+
+            foreach (var kv in splitField.ChildFields)
+            {
+                var name = kv.Key;
+                var child = kv.Value;
+                type.AddField(name, CreateSplitType(bodyName + name, child), child.Description);
+            }
+
             return type;
         }
 
@@ -300,7 +299,7 @@ namespace MakeConfig.Processor
                 throw MakeConfigException.NeedId(table);
             }
 
-            if (meta.Name != Config.IdName || meta.Constraint != "#id")
+            if (meta.FieldFullName != Config.IdName || meta.Constraint != "#id")
             {
                 throw MakeConfigException.NeedId(table);
             }

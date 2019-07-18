@@ -29,7 +29,7 @@ namespace MakeConfig.Configs
 
             public string FieldName;
             public string ImportType;
-            public string Comment;
+            public string Description;
 
         }
 

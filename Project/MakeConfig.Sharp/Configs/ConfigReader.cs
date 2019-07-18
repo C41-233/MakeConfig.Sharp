@@ -47,7 +47,7 @@ namespace MakeConfig.Configs
                 {
                     FieldName = define.Attributes?["name"]?.Value
                 };
-                define.TryParseSingleNode("comment", ref type.Comment);
+                define.TryParseSingleNode("comment", ref type.Description);
                 define.TryParseSingleNode("import", ref type.ImportType);
                 tableConfig.AddDefineType(type);
             });
