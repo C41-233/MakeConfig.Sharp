@@ -1,5 +1,7 @@
 ﻿
-namespace MakeConfig
+using System.Collections.Generic;
+
+namespace MakeConfig.Configs
 {
     public static class Config
     {
@@ -13,6 +15,12 @@ namespace MakeConfig
         public static string OutputFolder = @"..\..\..\..\Test\Output\AutoGen";
 
         public static string BaseTypeDll = @"..\..\..\..\Test\BaseType\bin\BaseType.dll";
+
+        public static string MetaConfig = null;
+
+        public static List<string> IgnoreFiles = new List<string>();
+
+        public static string Suffix = ".xlsx";
 
     }
 }

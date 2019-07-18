@@ -1,0 +1,17 @@
+<tables>
+	<ignore>IgnoreTest</ignore>
+	<id>Id</id>
+	<table name="SingleTest">
+		<define name="ImportClass2">
+			<comment>拆分导入class类型，空字段</comment>
+			<import>ImportClass</import>
+		</define>
+		<define name="ImportClass3">
+			<comment>拆分导入class类型</comment>
+			<import>ImportClass</import>
+		</define>
+		<define name="CustomClass2">
+			<comment>拆分自定义class类型</comment>
+		</define>
+	</table>
+</tables>
