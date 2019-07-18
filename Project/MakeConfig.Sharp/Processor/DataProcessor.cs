@@ -42,7 +42,7 @@ namespace MakeConfig.Processor
 
             using (var writer = new FileWriter($"{Config.OutputFolder}/ConfigBase.cs"))
             {
-                TemplateFile.Copy("ConfigBase.txt", writer);
+                TemplateFile.Copy("ConfigBase", writer);
             }
 
             foreach (var kv in tableNameToTables)

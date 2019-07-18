@@ -1,0 +1,24 @@
+﻿namespace #{0:Namespace}#
+{
+
+	public interface IConfig<TId>
+	{
+
+		IConfig<TId> GetConfig(TId id);
+
+	}
+
+	public abstract class ConfigBase<TConfig, TId> : IConfig<TId> where TConfig : ConfigBase<TConfig, TId>
+	{
+
+		public TId #{0:IdName}#;
+
+		IConfig<TId> IConfig<TId>.GetConfig(TId id) => GetConfig(id);
+
+		public TConfig GetConfig(TId id)
+		{
+			return default;
+		}
+
+	}
+}

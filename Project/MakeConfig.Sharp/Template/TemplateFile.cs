@@ -14,7 +14,7 @@ namespace MakeConfig.Template
         public static void Copy(string name, IOutputWriter writer)
         {
             var thisExe = Assembly.GetExecutingAssembly();
-            var stream = thisExe.GetManifestResourceStream(typeof(TemplateFile), name);
+            var stream = thisExe.GetManifestResourceStream($"MakeConfig.Template.{name}.template");
             if (stream == null)
             {
                 throw new FileNotFoundException(name);
