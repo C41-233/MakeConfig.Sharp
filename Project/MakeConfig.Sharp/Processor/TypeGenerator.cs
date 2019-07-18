@@ -6,6 +6,7 @@ using MakeConfig.Excel;
 using MakeConfig.Output;
 using MakeConfig.Processor.Types;
 using MakeConfig.Utils;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 
 namespace MakeConfig.Processor
 {
@@ -18,6 +19,7 @@ namespace MakeConfig.Processor
             public readonly List<DeclaredMember> DeclaredMembers = new List<DeclaredMember>();
             public string Description;
             public VirtualType Type;
+            public readonly List<SplitField> ChildFields = new List<SplitField>();
         }
 
         private struct DeclaredMember
@@ -72,20 +74,7 @@ namespace MakeConfig.Processor
                     //split field
                     if (field.Contains("."))
                     {
-                        var tokens = field.Split(new[] { '.' }, 2);
-                        if (!splitFields.TryGetValue(tokens[0], out var splitField))
-                        {
-                            splitField = new SplitField();
-                            splitFields.Add(tokens[0], splitField);
-                        }
-
-                        splitField.DeclaredMembers.Add(new DeclaredMember
-                        {
-                            RawText = field,
-                            Name = tokens[1],
-                            Type = fieldType,
-                            Description = meta.Description,
-                        });
+                        ParseSplitField(field, fieldType, meta.Description);
                     }
                     //normal field
                     else
@@ -132,6 +121,7 @@ namespace MakeConfig.Processor
                 {
                     virtualType = CreateSplitType(fieldName, ctx.DeclaredMembers);
                 }
+
                 configType.AddField(virtualType, fieldName, ctx.Description);
             }
 
@@ -139,6 +129,38 @@ namespace MakeConfig.Processor
             {
                 configType.Write(writer);
             }
+
+            void ParseSplitField(string field, VirtualType fieldType, string description)
+            {
+                var tokens = field.Split(new[] { '.' }, 2);
+                if (!splitFields.TryGetValue(tokens[0], out var splitField))
+                {
+                    splitField = new SplitField();
+                    splitFields.Add(tokens[0], splitField);
+                }
+
+                if (tokens[1].Contains("."))
+                {
+
+                }
+                else
+                {
+                    splitField.DeclaredMembers.Add(new DeclaredMember
+                    {
+                        RawText = field,
+                        Name = tokens[1],
+                        Type = fieldType,
+                        Description = description,
+                    });
+                }
+
+            }
+
+        }
+
+        private static SplitField ParseChildSplitField()
+        {
+
         }
 
         private static VirtualType GetType(string field, string type)
@@ -261,9 +283,9 @@ namespace MakeConfig.Processor
             return true;
         }
 
-        private static VirtualType CreateSplitType(string rootName, List<DeclaredMember> declaredMembers)
+        private static VirtualType CreateSplitType(string fieldName, List<DeclaredMember> declaredMembers)
         {
-            var type = new CustomStructType(rootName + "Type");
+            var type = new CustomStructType(fieldName + "Type");
             foreach (var member in declaredMembers)
             {
                 type.AddField(member.Name, member.Type, member.Description);
