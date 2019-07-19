@@ -51,15 +51,7 @@ namespace MakeConfig.Processor
             {
                 foreach (var typeDefine in tableConfig.DefineTypes)
                 {
-                    var splitField = new SplitField
-                    {
-                        Description = typeDefine.Description,
-                    };
-                    if (typeDefine.ImportType != null)
-                    {
-                        splitField.Type = ImportTypePool.Get(typeDefine.ImportType);
-                    }
-                    rootSplitFields.Add(typeDefine.FieldName, splitField);
+                    ParseDefineTypes(rootSplitFields, typeDefine, typeDefine.FieldName.Trim());
                 }
             }
 
@@ -101,7 +93,7 @@ namespace MakeConfig.Processor
 
         private static void ParseSplitField(Dictionary<string, SplitField> parent, string fieldPartName, VirtualType type, string description)
         {
-            fieldPartName.Split2By('.', out var name, out var body);
+            fieldPartName.TrySplit2By('.', out var name, out var body);
             if (!parent.TryGetValue(name, out var splitField))
             {
                 splitField = new SplitField();
@@ -123,6 +115,31 @@ namespace MakeConfig.Processor
                     Type = type,
                     Description = description,
                 });
+            }
+        }
+
+        private static void ParseDefineTypes(Dictionary<string, SplitField> rootSplitFields, TableConfig.DefineType typeDefine, string fieldPartName)
+        {
+            if (fieldPartName.TrySplit2By('.', out var name, out var body))
+            {
+                if (!rootSplitFields.TryGetValue(name, out var splitField))
+                {
+                    splitField = new SplitField();
+                    rootSplitFields.Add(name, splitField);
+                }
+                ParseDefineTypes(splitField.ChildFields, typeDefine, body);
+            }
+            else
+            {
+                var splitField = new SplitField
+                {
+                    Description = typeDefine.Description,
+                };
+                if (typeDefine.ImportType != null)
+                {
+                    splitField.Type = ImportTypePool.Get(typeDefine.ImportType);
+                }
+                rootSplitFields.Add(fieldPartName, splitField);
             }
         }
 

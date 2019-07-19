@@ -21,5 +21,8 @@
 		<define name="MyClass.Field3">
 			<comment>MyClass.Field3</comment>
 		</define>
+		<define name="MyClass.Field3.Field3">
+			<comment>MyClass.Field3.Field3</comment>
+		</define>
 	</table>
 </tables>
