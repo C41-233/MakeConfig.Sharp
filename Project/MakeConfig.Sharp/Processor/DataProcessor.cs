@@ -47,7 +47,13 @@ namespace MakeConfig.Processor
 
             foreach (var kv in tableNameToTables)
             {
-                TypeGenerator.GenerateType(kv.Value);
+                var tables = kv.Value;
+                var configType = TypeGenerator.GenerateType(tables);
+
+                if (Config.OutputType == OutputType.CSharp)
+                {
+                    CSharpOutput.Output(configType, tables);
+                }
             }
         }
 

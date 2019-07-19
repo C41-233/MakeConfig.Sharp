@@ -3,6 +3,18 @@ using System.Collections.Generic;
 
 namespace MakeConfig.Configs
 {
+
+    public enum Mode
+    {
+        Config,
+        Xml,
+    }
+
+    public enum OutputType
+    {
+        CSharp,
+    }
+
     public static class Config
     {
 
@@ -24,7 +36,9 @@ namespace MakeConfig.Configs
 
         public static string Suffix = ".xlsx";
 
-        public static bool ConfigMode = true; //false=XmlMode
+        public static Mode Mode = Mode.Config;
+
+        public static OutputType OutputType = OutputType.CSharp;
 
     }
 }

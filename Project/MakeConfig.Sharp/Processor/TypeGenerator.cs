@@ -28,13 +28,13 @@ namespace MakeConfig.Processor
             public string Description;
         }
 
-        public static void GenerateType(List<VirtualDataTable> tables)
+        public static ConfigType GenerateType(List<VirtualDataTable> tables)
         {
             AssertSameMetas(tables);
-            GenerateType(tables[0]);
+            return GenerateType(tables[0]);
         }
 
-        private static void GenerateType(VirtualDataTable table)
+        private static ConfigType GenerateType(VirtualDataTable table)
         {
             CheckAndGetIdMeta(table, out var idMeta);
 
@@ -96,10 +96,7 @@ namespace MakeConfig.Processor
                 configType.AddField(virtualType, fieldName, ctx.Description);
             }
 
-            using (var writer = new FileWriter($"{Config.OutputFolder}/{table.TableName + Config.GenerateClassSuffix}.cs"))
-            {
-                configType.Write(writer);
-            }
+            return configType;
         }
 
         private static void ParseSplitField(Dictionary<string, SplitField> parent, string fieldPartName, VirtualType type, string description)

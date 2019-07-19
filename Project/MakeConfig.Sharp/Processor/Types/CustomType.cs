@@ -14,14 +14,12 @@ namespace MakeConfig.Processor.Types
         {
             Name = name;
         }
-
-        public abstract void Write(IOutputWriter writer);
     }
 
     internal sealed class CustomStructType : CustomType
     {
 
-        private struct Field
+        public struct Field
         {
             public VirtualType Type;
             public string Name;
@@ -31,40 +29,15 @@ namespace MakeConfig.Processor.Types
         private readonly List<Field> fields = new List<Field>();
         private readonly List<CustomType> innerTypes = new List<CustomType>();
 
-        private readonly bool isStruct;
+        public readonly bool IsStruct;
+
+        public IEnumerable<Field> Fields => fields;
+
+        public IEnumerable<CustomType> InnerTypes => innerTypes;
 
         public CustomStructType(string name, bool isStruct = false) : base(name)
         {
-            this.isStruct = isStruct;
-        }
-
-        public override void Write(IOutputWriter writer)
-        {
-            var keyword = isStruct ? "struct" : "class";
-            writer.WriteLine($"public {keyword} {Name}");
-            writer.WriteLine("{");
-            writer.Block(() =>
-            {
-                foreach (var field in fields)
-                {
-                    if (field.Description != null)
-                    {
-                        writer.WriteLine("/// <summary>");
-                        writer.WriteLine($"/// {field.Description}");
-                        writer.WriteLine("/// </summary>");
-                    }
-                    writer.WriteLine($"public {field.Type.Name} {field.Name};");
-                    writer.WriteLine();
-                }
-
-                foreach (var type in innerTypes)
-                {
-                    type.Write(writer);
-                    writer.WriteLine();
-                }
-            });
-            writer.WriteLine("}");
-            writer.WriteLine();
+            IsStruct = isStruct;
         }
 
         public void AddField(string field, VirtualType type, string description)
@@ -91,6 +64,8 @@ namespace MakeConfig.Processor.Types
     {
         private readonly Dictionary<string, string> fields = new Dictionary<string, string>();
 
+        public IEnumerable<KeyValuePair<string, string>> Fields => fields;
+
         public CustomEnumType(string name) : base(name)
         {
         }
@@ -105,27 +80,6 @@ namespace MakeConfig.Processor.Types
             fields.Add(field, value);
         }
 
-        public override void Write(IOutputWriter writer)
-        {
-            writer.WriteLine($"public enum {Name}");
-            writer.WriteLine("{");
-            writer.Block(() =>
-            {
-                foreach (var field in fields)
-                {
-                    if (field.Value != null)
-                    {
-                        writer.WriteLine($"{field.Key} = {field.Value},");
-                    }
-                    else
-                    {
-                        writer.WriteLine($"{field.Key},");
-                    }
-                }
-            });
-            writer.WriteLine("}");
-            writer.WriteLine();
-        }
     }
 
 }

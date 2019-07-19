@@ -60,6 +60,7 @@
     <Compile Include="Configs\TableConfigs.cs" />
     <Compile Include="Configs\ConfigReader.cs" />
     <Compile Include="InnerException.cs" />
+    <Compile Include="Output\CSharpOutput.cs" />
     <Compile Include="Output\FileWriter.cs" />
     <Compile Include="Output\IOutputWriter.cs" />
     <Compile Include="Processor\Constraints\Constraint.cs" />

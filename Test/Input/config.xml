@@ -14,4 +14,12 @@
 			<comment>拆分自定义class类型</comment>
 		</define>
 	</table>
+	<table name="SplitTypeTest">
+		<define name="MyClass">
+			<comment>MyClass</comment>
+		</define>
+		<define name="MyClass.Field3">
+			<comment>MyClass.Field3</comment>
+		</define>
+	</table>
 </tables>

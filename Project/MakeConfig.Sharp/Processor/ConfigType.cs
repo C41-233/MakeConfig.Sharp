@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using MakeConfig.Configs;
-using MakeConfig.Output;
 using MakeConfig.Processor.Types;
-using MakeConfig.Utils;
 
 namespace MakeConfig.Processor
 {
     internal class ConfigType
     {
 
-        private struct Field
+        public struct Field
         {
             public VirtualType Type;
             public string Name;
@@ -19,7 +17,7 @@ namespace MakeConfig.Processor
 
         private readonly List<Field> fields = new List<Field>();
 
-        private Field idField;
+        public Field IdField { get; private set; }
 
         public string Name { get; }
 
@@ -30,9 +28,11 @@ namespace MakeConfig.Processor
 
         private readonly List<CustomType> innerTypes = new List<CustomType>();
 
+        public IEnumerable<CustomType> InnerTypes => innerTypes;
+
         public void SetIdField(VirtualType type, string description)
         {
-            idField = NewField(type, Config.IdName, description);
+            IdField = NewField(type, Config.IdName, description);
         }
 
         public void AddField(VirtualType type, string name, string description)
@@ -43,6 +43,8 @@ namespace MakeConfig.Processor
             }
             fields.Add(NewField(type, name, description));   
         }
+
+        public IEnumerable<Field> Fields => fields;
 
         private Field NewField(VirtualType type, string name, string description)
         {
@@ -57,45 +59,6 @@ namespace MakeConfig.Processor
                 innerTypes.Add(customType);
             }
             return field;
-        }
-
-        public void Write(IOutputWriter writer)
-        {
-            writer.WriteLine($"namespace {Config.Namespace}");
-            writer.WriteLine("{");
-            writer.Block(() =>
-            {
-                writer.WriteLine($"public sealed partial class {Name} : ConfigBase<{Name}, {idField.Type.Name}>");
-                writer.WriteLine("{");
-                writer.Block(() =>
-                {
-                    //fields
-                    foreach (var field in fields)
-                    {
-                        WriteField(writer, field);
-                        writer.WriteLine();
-                    }
-
-                    //inner class
-                    foreach (var type in innerTypes)
-                    {
-                        type.Write(writer);
-                    }
-                });
-                writer.WriteLine("}");
-            });
-            writer.WriteLine("}");
-        }
-
-        private static void WriteField(IOutputWriter writer, Field field)
-        {
-            if (!string.IsNullOrWhiteSpace(field.Description))
-            {
-                writer.WriteLine("/// <summary>");
-                writer.WriteLine($"/// {field.Description}");
-                writer.WriteLine("/// </summary>");
-            }
-            writer.WriteLine($"public {field.Type.Name} {field.Name};");
         }
 
     }
